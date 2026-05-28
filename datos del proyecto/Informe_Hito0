@@ -1,0 +1,18 @@
+# Informe Hito 0 - Boletos Cine
+
+**Alumno:** Vicente Morales
+**Ramo:** Programación WEB
+
+## ¿Qué es el proyecto?
+Sistema web para comprar boletos de cine.
+
+## ¿Qué hice en este hito?
+
+- Creé la estructura de carpetas del proyecto (back y front)
+- Configuré el backend con Node.js, Express y Sequelize
+- Conecté la base de datos PostgreSQL y creé el modelo de usuarios
+- Inicialicé el frontend con Vite y React
+- Configuré el repositorio en GitHub con .gitignore
+
+## Estado
+Hito 0 completado. La base del proyecto está lista para empezar a desarrollar.
