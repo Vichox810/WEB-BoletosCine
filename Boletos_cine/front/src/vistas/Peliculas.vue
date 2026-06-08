@@ -69,7 +69,7 @@ const cargarPeliculas = async () => {
 
 const crearPelicula = async () => {
   if (!isAdmin()) {
-    error.value = '❌ No tienes permisos para crear películas'
+    error.value = ' No tienes permisos para crear películas'
     return
   }
   error.value = ''
@@ -88,7 +88,7 @@ const crearPelicula = async () => {
 
 const eliminarPelicula = async (id) => {
   if (!isAdmin()) {
-    error.value = '❌ No tienes permisos para eliminar películas'
+    error.value = ' No tienes permisos para eliminar películas'
     return
   }
   if (!confirm('¿Eliminar esta película?')) return
