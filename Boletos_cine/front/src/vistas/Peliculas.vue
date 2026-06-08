@@ -2,7 +2,7 @@
   <div class="container">
     <div class="header">
       <h2>Películas</h2>
-      <button @click="mostrarFormulario = !mostrarFormulario">
+      <button v-if="isAdmin()" @click="mostrarFormulario = !mostrarFormulario">
         {{ mostrarFormulario ? 'Cancelar' : 'Nueva película' }}
       </button>
     </div>
@@ -30,7 +30,7 @@
           <p>{{ pelicula.genero }} · {{ pelicula.duracion }} min</p>
           <p v-if="pelicula.sinopsis">{{ pelicula.sinopsis }}</p>
         </div>
-        <button class="btn-eliminar" @click="eliminarPelicula(pelicula.id)">Eliminar</button>
+        <button v-if="isAdmin()" class="btn-eliminar" @click="eliminarPelicula(pelicula.id)">Eliminar</button>
       </div>
     </div>
   </div>
@@ -50,6 +50,11 @@ const form = ref({ titulo: '', genero: '', duracion: '', sinopsis: '' })
 
 const token = localStorage.getItem('token')
 const authHeader = { headers: { Authorization: `Bearer ${token}` } }
+const user = JSON.parse(localStorage.getItem('user') || '{}')
+
+const isAdmin = () => {
+  return user.role === 'admin'
+}
 
 const cargarPeliculas = async () => {
   try {
@@ -63,6 +68,10 @@ const cargarPeliculas = async () => {
 }
 
 const crearPelicula = async () => {
+  if (!isAdmin()) {
+    error.value = '❌ No tienes permisos para crear películas'
+    return
+  }
   error.value = ''
   cargando.value = true
   try {
@@ -78,6 +87,10 @@ const crearPelicula = async () => {
 }
 
 const eliminarPelicula = async (id) => {
+  if (!isAdmin()) {
+    error.value = '❌ No tienes permisos para eliminar películas'
+    return
+  }
   if (!confirm('¿Eliminar esta película?')) return
   try {
     await axios.delete(`http://localhost:3000/api/peliculas/${id}`, authHeader)

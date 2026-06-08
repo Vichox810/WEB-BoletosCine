@@ -1,48 +1,179 @@
+:root {
+  --primary: #667eea;
+  --primary-dark: #5568d3;
+  --primary-light: #8b9ef8;
+  --accent: #764ba2;
+  --success: #11b981;
+  --error: #f85757;
+  --warning: #f59e0b;
+  --bg: #f8f9ff;
+  --bg-secondary: #eef2ff;
+  --text: #2d3748;
+  --text-light: #718096;
+  --border: #e2e8f0;
+}
+
+* {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 .container {
-  max-width: 700px;
+  max-width: 900px;
   margin: 40px auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 32px;
   padding: 0 16px;
 }
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 10px;
+  padding: 0 8px;
 }
+
+.header h1 {
+  color: #1a202c !important;
+  font-size: 2.2em;
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+  background-clip: unset !important;
+}
+
 .formulario {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 16px;
-  border: 1px solid #333;
-  border-radius: 8px;
+  gap: 16px;
+  padding: 28px;
+  background: linear-gradient(135deg, white 0%, var(--bg-secondary) 100%);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.08);
+  transition: all 0.3s ease;
 }
+
+.formulario:hover {
+  border-color: var(--primary);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.15);
+}
+
 input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
   font-size: 1em;
+  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: linear-gradient(135deg, #fafbff 0%, #f5f7ff 100%);
+  color: var(--text);
 }
+
+input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), inset 0 2px 4px rgba(102, 126, 234, 0.05);
+  transform: translateY(-2px);
+}
+
 button {
-  padding: 10px 16px;
-  background-color: #646cff;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 1em;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
 }
-button:disabled { opacity: 0.6; }
-.lista { display: flex; flex-direction: column; gap: 12px; }
+
+button:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.4);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  border: 1px solid #333;
-  border-radius: 8px;
+  padding: 20px 24px;
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
 }
-.btn-eliminar { background-color: #e53e3e; }
-.error { color: red; }
+
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+  transform: translateY(-4px);
+}
+
+.card:hover::before {
+  transform: scaleY(1);
+}
+
+.btn-eliminar {
+  background: linear-gradient(135deg, var(--error) 0%, #d43f3f 100%);
+  box-shadow: 0 8px 20px rgba(248, 87, 87, 0.3);
+}
+
+.btn-eliminar:hover:not(:disabled) {
+  box-shadow: 0 12px 28px rgba(248, 87, 87, 0.4);
+}
+
+.error {
+  color: var(--error);
+  font-size: 0.9em;
+  margin-top: -12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.error::before {
+  content: '⚠';
+  font-size: 1.1em;
+}

@@ -2,7 +2,7 @@
   <div class="container">
     <div class="header">
       <h2>Cartelera</h2>
-      <button @click="mostrarFormulario = !mostrarFormulario">
+      <button v-if="isAdmin()" @click="mostrarFormulario = !mostrarFormulario">
         {{ mostrarFormulario ? 'Cancelar' : 'Nueva función' }}
       </button>
     </div>
@@ -34,7 +34,7 @@
           <p>{{ new Date(funcion.fecha).toLocaleDateString('es-CL') }} · {{ funcion.hora }}</p>
           <p>Sala: {{ funcion.sala }} · ${{ funcion.precio }}</p>
         </div>
-        <button class="btn-eliminar" @click="eliminarFuncion(funcion.id)">Eliminar</button>
+        <button v-if="isAdmin()" class="btn-eliminar" @click="eliminarFuncion(funcion.id)">Eliminar</button>
       </div>
     </div>
   </div>
@@ -55,6 +55,11 @@ const form = ref({ PeliculaId: '', fecha: '', hora: '', sala: '', precio: '' })
 
 const token = localStorage.getItem('token')
 const authHeader = { headers: { Authorization: `Bearer ${token}` } }
+const user = JSON.parse(localStorage.getItem('user') || '{}')
+
+const isAdmin = () => {
+  return user.role === 'admin'
+}
 
 const cargarFunciones = async () => {
   try {
@@ -77,6 +82,10 @@ const cargarPeliculas = async () => {
 }
 
 const crearFuncion = async () => {
+  if (!isAdmin()) {
+    error.value = '❌ No tienes permisos para crear funciones'
+    return
+  }
   error.value = ''
   cargando.value = true
   try {
@@ -92,6 +101,10 @@ const crearFuncion = async () => {
 }
 
 const eliminarFuncion = async (id) => {
+  if (!isAdmin()) {
+    error.value = '❌ No tienes permisos para eliminar funciones'
+    return
+  }
   if (!confirm('¿Eliminar esta función?')) return
   try {
     await axios.delete(`http://localhost:3000/api/funciones/${id}`, authHeader)
