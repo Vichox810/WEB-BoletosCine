@@ -5,6 +5,7 @@ import Inicio from '../vistas/Inicio.vue'
 import Peliculas from '../vistas/Peliculas.vue'
 import Funciones from '../vistas/Funciones.vue'
 import Usuarios from '../vistas/Usuarios.vue'
+import Dashboard from '../vistas/Dashboard.vue'
 
 const routes = [
   { path: '/registro', component: Registro },
@@ -12,7 +13,8 @@ const routes = [
   { path: '/inicio', component: Inicio },
   { path: '/peliculas', component: Peliculas },
   { path: '/funciones', component: Funciones }, 
-  { path: '/usuarios', component: Usuarios } 
+  { path: '/usuarios', component: Usuarios },
+  { path: '/dashboard', component: Dashboard }
 ]
 
 const router = createRouter({

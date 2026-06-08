@@ -10,6 +10,7 @@
         <div class="nav-links">
           <router-link to="/peliculas" class="nav-link">Películas</router-link>
           <router-link to="/funciones" class="nav-link">Funciones</router-link>
+          <router-link v-if="user.role === 'admin'" to="/dashboard" class="nav-link admin-link">📊 Panel de Administrador</router-link>
           <span v-if="user.role === 'admin'" class="role-badge admin-badge">👨‍💼 Administrador</span>
           <span v-else class="role-badge user-badge">👤 Usuario</span>
           <button @click="logout" class="nav-button logout">Cerrar Sesión</button>
@@ -30,7 +31,6 @@
           <div class="info-card">
             <span class="info-label">Rol</span>
             <span class="info-value">{{ user.role }}</span>
-            
           </div>
         </div>
       </div>
@@ -40,34 +40,27 @@
     <section class="quick-actions">
       <h2>{{ user.role === 'admin' ? 'Panel de Gestión' : 'Acciones Rápidas' }}</h2>
       <div class="actions-grid">
-        <!-- All Users: Ver Películas -->
         <div class="action-card" @click="router.push('/peliculas')">
           <div class="action-icon">🎬</div>
           <h3>Ver Películas</h3>
           <p>Explora nuestro catálogo completo</p>
         </div>
-
-        <!-- All Users: Ver Funciones -->
         <div class="action-card" @click="router.push('/funciones')">
           <div class="action-icon">📅</div>
           <h3>Ver Funciones</h3>
           <p>Consulta horarios disponibles</p>
         </div>
-
-        <!-- User Only: Mis Entradas -->
         <div v-if="user.role !== 'admin'" class="action-card" @click="goToComprar">
           <div class="action-icon">🎟️</div>
           <h3>Mis Entradas</h3>
           <p>Revisa tus compras</p>
         </div>
       </div>
-
-      <!-- Admin Only: Ver Usuarios -->
-    <div v-if="user.role === 'admin'" class="action-card" @click="router.push('/usuarios')">
-      <div class="action-icon">👥</div>
-     <h3>Ver Usuarios</h3>
-      <p>Gestiona los usuarios registrados</p>
-    </div>
+      <div v-if="user.role === 'admin'" class="action-card" @click="router.push('/usuarios')">
+        <div class="action-icon">👥</div>
+        <h3>Ver Usuarios</h3>
+        <p>Gestiona los usuarios registrados</p>
+      </div>
     </section>
 
     <!-- Featured Movies Section -->
