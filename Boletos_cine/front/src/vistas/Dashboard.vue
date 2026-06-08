@@ -18,27 +18,27 @@
     </nav>
 
     <div class="dashboard-content">
-      <h1>📊 Panel de Administrador</h1>
+      <h1> Panel de Administrador</h1>
       <p class="subtitle">Resumen general del sistema</p>
 
       <!-- Stats Cards -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-icon">👥</div>
+          <div class="stat-icon"></div>
           <div class="stat-info">
             <div class="stat-number">{{ stats.usuarios }}</div>
             <div class="stat-label">Usuarios registrados</div>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">🎬</div>
+          <div class="stat-icon"></div>
           <div class="stat-info">
             <div class="stat-number">{{ stats.peliculas }}</div>
             <div class="stat-label">Películas en catálogo</div>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">📅</div>
+          <div class="stat-icon"></div>
           <div class="stat-info">
             <div class="stat-number">{{ stats.funciones }}</div>
             <div class="stat-label">Funciones programadas</div>
@@ -78,7 +78,7 @@
 
       <!-- Funciones recientes -->
       <div class="section">
-        <h2>📅 Próximas funciones</h2>
+        <h2> Próximas funciones</h2>
         <div class="table-container">
           <table>
             <thead>
