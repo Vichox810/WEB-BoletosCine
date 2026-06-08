@@ -18,9 +18,11 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import '../styles/Registro.css'
 
+const router = useRouter()
 const form = ref({ name: '', email: '', password: '' })
 const error = ref('')
 const exito = ref('')
@@ -35,6 +37,7 @@ const registrar = async () => {
     const res = await axios.post('http://localhost:3000/api/users/register', form.value)
     exito.value = res.data.message
     form.value = { name: '', email: '', password: '' }
+    setTimeout(() => router.push('/login'), 1500)
   } catch (err) {
     const msg = err.response?.data?.error
     if (Array.isArray(msg)) {
@@ -47,4 +50,3 @@ const registrar = async () => {
   }
 }
 </script>
-
