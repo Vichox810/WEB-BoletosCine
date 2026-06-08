@@ -187,3 +187,13 @@ button:disabled {
   content: '⚠';
   font-size: 1.1em;
 }
+
+.acciones { display: flex; gap: 8px; }
+.btn-editar {
+  padding: 8px 14px;
+  background-color: #f6ad55;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

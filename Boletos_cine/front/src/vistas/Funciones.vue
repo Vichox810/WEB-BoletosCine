@@ -8,7 +8,7 @@
     </div>
 
     <div v-if="mostrarFormulario" class="formulario">
-      <h3>Agregar función</h3>
+      <h3>{{ editando ? 'Editar función' : 'Agregar función' }}</h3>
       <div v-if="error" class="error">{{ error }}</div>
       <select v-model="form.PeliculaId">
         <option value="" disabled>Selecciona una película</option>
@@ -18,13 +18,12 @@
       <input v-model="form.hora" type="time" />
       <input v-model="form.sala" type="text" placeholder="Sala" />
       <input v-model="form.precio" type="number" placeholder="Precio" />
-      <button @click="crearFuncion" :disabled="cargando">
+      <button @click="editando ? actualizarFuncion() : crearFuncion()" :disabled="cargando">
         {{ cargando ? 'Guardando...' : 'Guardar' }}
       </button>
     </div>
 
     <div v-if="cargandoLista">Cargando cartelera...</div>
-
     <div v-else-if="funciones.length === 0">No hay funciones registradas.</div>
 
     <div v-else class="lista">
@@ -34,7 +33,10 @@
           <p>{{ new Date(funcion.fecha).toLocaleDateString('es-CL') }} · {{ funcion.hora }}</p>
           <p>Sala: {{ funcion.sala }} · ${{ funcion.precio }}</p>
         </div>
-        <button v-if="isAdmin()" class="btn-eliminar" @click="eliminarFuncion(funcion.id)">Eliminar</button>
+        <div class="acciones" v-if="isAdmin()">
+          <button class="btn-editar" @click="abrirEditar(funcion)">Editar</button>
+          <button class="btn-eliminar" @click="eliminarFuncion(funcion.id)">Eliminar</button>
+        </div>
       </div>
     </div>
   </div>
@@ -51,15 +53,15 @@ const cargandoLista = ref(true)
 const cargando = ref(false)
 const error = ref('')
 const mostrarFormulario = ref(false)
+const editando = ref(false)
+const editandoId = ref(null)
 const form = ref({ PeliculaId: '', fecha: '', hora: '', sala: '', precio: '' })
 
 const token = localStorage.getItem('token')
 const authHeader = { headers: { Authorization: `Bearer ${token}` } }
 const user = JSON.parse(localStorage.getItem('user') || '{}')
 
-const isAdmin = () => {
-  return user.role === 'admin'
-}
+const isAdmin = () => user.role === 'admin'
 
 const cargarFunciones = async () => {
   try {
@@ -81,11 +83,20 @@ const cargarPeliculas = async () => {
   }
 }
 
-const crearFuncion = async () => {
-  if (!isAdmin()) {
-    error.value = '❌ No tienes permisos para crear funciones'
-    return
+const abrirEditar = (funcion) => {
+  editando.value = true
+  editandoId.value = funcion.id
+  form.value = {
+    PeliculaId: funcion.PeliculaId,
+    fecha: funcion.fecha?.split('T')[0],
+    hora: funcion.hora,
+    sala: funcion.sala,
+    precio: funcion.precio
   }
+  mostrarFormulario.value = true
+}
+
+const crearFuncion = async () => {
   error.value = ''
   cargando.value = true
   try {
@@ -100,11 +111,24 @@ const crearFuncion = async () => {
   }
 }
 
-const eliminarFuncion = async (id) => {
-  if (!isAdmin()) {
-    error.value = '❌ No tienes permisos para eliminar funciones'
-    return
+const actualizarFuncion = async () => {
+  error.value = ''
+  cargando.value = true
+  try {
+    await axios.put(`http://localhost:3000/api/funciones/${editandoId.value}`, form.value, authHeader)
+    form.value = { PeliculaId: '', fecha: '', hora: '', sala: '', precio: '' }
+    mostrarFormulario.value = false
+    editando.value = false
+    editandoId.value = null
+    await cargarFunciones()
+  } catch (err) {
+    error.value = err.response?.data?.error || 'Error al actualizar función'
+  } finally {
+    cargando.value = false
   }
+}
+
+const eliminarFuncion = async (id) => {
   if (!confirm('¿Eliminar esta función?')) return
   try {
     await axios.delete(`http://localhost:3000/api/funciones/${id}`, authHeader)

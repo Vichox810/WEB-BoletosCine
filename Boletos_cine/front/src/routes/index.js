@@ -22,4 +22,15 @@ const router = createRouter({
   routes
 })
 
+router.beforeEach((to, from, next) => {
+  const rutasPublicas = ['/login', '/registro']
+  const token = localStorage.getItem('token')
+
+  if (!rutasPublicas.includes(to.path) && !token) {
+    next('/login')
+  } else {
+    next()
+  }
+})
+
 export default router
