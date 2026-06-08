@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { User } = require('../models');
 const jwt = require('jsonwebtoken');
+const authenticate = require('../middlewares/authenticate');
 
 // POST /api/users/register
 router.post('/register', async (req, res) => {
@@ -68,6 +69,20 @@ router.post('/login', async (req, res) => {
     console.error(error);
     return res.status(500).json({ error: 'Error interno del servidor' });
   }
-});
+}); 
+
+router.get('/', authenticate, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Acceso denegado' })
+    }
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] }
+    })
+    res.json(users)
+  } catch (error) {
+    res.status(500).json({ error: 'Error interno del servidor' })
+  }
+})
 
 module.exports = router;

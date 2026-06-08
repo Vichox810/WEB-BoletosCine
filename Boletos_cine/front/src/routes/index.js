@@ -4,13 +4,15 @@ import Login from '../vistas/Login.vue'
 import Inicio from '../vistas/Inicio.vue'
 import Peliculas from '../vistas/Peliculas.vue'
 import Funciones from '../vistas/Funciones.vue'
+import Usuarios from '../vistas/Usuarios.vue'
 
 const routes = [
   { path: '/registro', component: Registro },
   { path: '/login', component: Login },
   { path: '/inicio', component: Inicio },
   { path: '/peliculas', component: Peliculas },
-  { path: '/funciones', component: Funciones } 
+  { path: '/funciones', component: Funciones }, 
+  { path: '/usuarios', component: Usuarios } 
 ]
 
 const router = createRouter({

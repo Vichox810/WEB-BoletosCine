@@ -21,7 +21,7 @@ import '../styles/Login.css'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-
+  
 const form = ref({ email: '', password: '' })
 const error = ref('')
 const cargando = ref(false)

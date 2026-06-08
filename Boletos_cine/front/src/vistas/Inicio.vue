@@ -5,7 +5,7 @@
       <div class="navbar-container">
         <div class="logo">
           <span class="logo-icon">🎬</span>
-          <span class="logo-text">CineMax</span>
+          <span class="logo-text">FrutiCine</span>
         </div>
         <div class="nav-links">
           <router-link to="/peliculas" class="nav-link">Películas</router-link>
@@ -30,6 +30,7 @@
           <div class="info-card">
             <span class="info-label">Rol</span>
             <span class="info-value">{{ user.role }}</span>
+            
           </div>
         </div>
       </div>
@@ -60,6 +61,13 @@
           <p>Revisa tus compras</p>
         </div>
       </div>
+
+      <!-- Admin Only: Ver Usuarios -->
+    <div v-if="user.role === 'admin'" class="action-card" @click="router.push('/usuarios')">
+      <div class="action-icon">👥</div>
+     <h3>Ver Usuarios</h3>
+      <p>Gestiona los usuarios registrados</p>
+    </div>
     </section>
 
     <!-- Featured Movies Section -->
@@ -115,7 +123,7 @@
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-section">
-          <h4>Sobre CineMax</h4>
+          <h4>Sobre FrutiCine</h4>
           <p>Tu plataforma de confianza para disfrutar del mejor cine</p>
         </div>
         <div class="footer-section">
@@ -127,12 +135,12 @@
         </div>
         <div class="footer-section">
           <h4>Contacto</h4>
-          <p>Email: info@cinemax.com</p>
+          <p>Email: info@fruticine.com</p>
           <p>Teléfono: (555) 123-4567</p>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 CineMax. Todos los derechos reservados.</p>
+        <p>&copy; 2026 FrutiCine. Todos los derechos reservados.</p>
       </div>
     </footer>
   </div>
