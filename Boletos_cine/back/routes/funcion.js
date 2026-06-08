@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { Funcion, Pelicula } = require('../models');
+const authenticate = require('../middlewares/authenticate');
 
-// GET todas las funciones
+// GET todas las funciones - PÚBLICA
 router.get('/', async (req, res) => {
   try {
     const funciones = await Funcion.findAll({
@@ -14,7 +15,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET función por ID
+// GET función por ID - PÚBLICA
 router.get('/:id', async (req, res) => {
   try {
     const funcion = await Funcion.findByPk(req.params.id, {
@@ -29,7 +30,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// GET funciones por película
+// GET funciones por película - PÚBLICA
 router.get('/pelicula/:peliculaId', async (req, res) => {
   try {
     const funciones = await Funcion.findAll({
@@ -42,56 +43,38 @@ router.get('/pelicula/:peliculaId', async (req, res) => {
   }
 });
 
-// POST crear nueva función
-router.post('/', async (req, res) => {
+// POST crear función - PROTEGIDA
+router.post('/', authenticate, async (req, res) => {
   try {
     const { fecha, hora, sala, precio, PeliculaId } = req.body;
-    
     if (!fecha || !hora || !sala || !precio || !PeliculaId) {
-      return res.status(400).json({ 
-        error: 'Faltan campos requeridos: fecha, hora, sala, precio, PeliculaId' 
-      });
+      return res.status(400).json({ error: 'Faltan campos requeridos: fecha, hora, sala, precio, PeliculaId' });
     }
-
-    // Verificar que la película existe
     const pelicula = await Pelicula.findByPk(PeliculaId);
     if (!pelicula) {
       return res.status(404).json({ error: 'Película no encontrada' });
     }
-
-    const funcion = await Funcion.create({
-      fecha,
-      hora,
-      sala,
-      precio,
-      PeliculaId
-    });
-
+    const funcion = await Funcion.create({ fecha, hora, sala, precio, PeliculaId });
     res.status(201).json(funcion);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// PUT actualizar función
-router.put('/:id', async (req, res) => {
+// PUT actualizar función - PROTEGIDA
+router.put('/:id', authenticate, async (req, res) => {
   try {
     const funcion = await Funcion.findByPk(req.params.id);
-    
     if (!funcion) {
       return res.status(404).json({ error: 'Función no encontrada' });
     }
-
     const { fecha, hora, sala, precio, PeliculaId } = req.body;
-    
-    // Si se quiere cambiar la película, verificar que existe
     if (PeliculaId) {
       const pelicula = await Pelicula.findByPk(PeliculaId);
       if (!pelicula) {
         return res.status(404).json({ error: 'Película no encontrada' });
       }
     }
-    
     await funcion.update({
       fecha: fecha || funcion.fecha,
       hora: hora || funcion.hora,
@@ -99,22 +82,19 @@ router.put('/:id', async (req, res) => {
       precio: precio || funcion.precio,
       PeliculaId: PeliculaId || funcion.PeliculaId
     });
-
     res.json(funcion);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// DELETE eliminar función
-router.delete('/:id', async (req, res) => {
+// DELETE eliminar función - PROTEGIDA
+router.delete('/:id', authenticate, async (req, res) => {
   try {
     const funcion = await Funcion.findByPk(req.params.id);
-    
     if (!funcion) {
       return res.status(404).json({ error: 'Función no encontrada' });
     }
-
     await funcion.destroy();
     res.json({ message: 'Función eliminada correctamente' });
   } catch (error) {

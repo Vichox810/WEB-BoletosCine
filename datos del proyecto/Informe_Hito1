@@ -1,0 +1,49 @@
+# Informe Hito 1 - Boletos Cine
+
+**Alumno:** Vicente Morales  
+**Ramo:** Programación WEB
+
+## ¿Qué hice en este hito?
+
+### GEN-04: Registro de usuario
+- Endpoint `POST /api/users/register` con validación de email único y contraseña mínima de 8 caracteres
+- Contraseña hasheada con bcrypt antes de guardar en BD
+- Pantalla web de registro en `/registro` con mensajes de error 400/409 visibles
+
+### GEN-05: Login y emisión JWT
+- Endpoint `POST /api/users/login` que devuelve JWT con payload de id, email y rol
+- Credenciales inválidas devuelven 401
+- Pantalla web de login en `/login` con redirección a `/inicio` tras éxito
+- Botón de cerrar sesión que borra el token del localStorage
+
+### GEN-06: Middleware de autenticación
+- Middleware `authenticate` que verifica JWT en el header `Authorization: Bearer <token>`
+- Sin token o token inválido → 401
+- Rutas públicas: `GET /api/peliculas`, `GET /api/funciones`, `POST /api/users/register`, `POST /api/users/login`, `GET /api/health`
+- Rutas protegidas: `POST`, `PUT`, `DELETE` en peliculas y funciones
+
+### rq-03: CRUD Películas
+- Endpoints `GET`, `POST`, `PUT`, `DELETE` en `/api/peliculas`
+- Pantalla web en `/peliculas` con listado, formulario de creación y eliminación
+- Requiere token para crear y eliminar
+
+### rq-08: Cartelera de funciones
+- Endpoints `GET`, `POST`, `PUT`, `DELETE` en `/api/funciones`
+- Pantalla web en `/funciones` con listado de cartelera, formulario de creación y eliminación
+- Funciones asociadas a películas existentes
+
+## Rutas públicas vs protegidas
+
+| Ruta | Método | Acceso |
+|------|--------|--------|
+| /api/users/register | POST | Público |
+| /api/users/login | POST | Público |
+| /api/peliculas | GET | Público |
+| /api/funciones | GET | Público |
+| /api/health | GET | Público |
+| /api/peliculas | POST/PUT/DELETE | Requiere JWT |
+| /api/funciones | POST/PUT/DELETE | Requiere JWT |
+
+## Estado
+
+Hito 1 completado. Autenticación, middleware y CRUD principal operativos.

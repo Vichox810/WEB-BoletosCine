@@ -4,6 +4,7 @@ const cors = require('cors');
 const { sequelize } = require('./models');
 const peliculaRoutes = require('./routes/pelicula');
 const funcionRoutes = require('./routes/funcion');
+const userRoutes = require('./routes/user'); 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,7 @@ app.use(express.json());
 // Rutas
 app.use('/api/peliculas', peliculaRoutes);
 app.use('/api/funciones', funcionRoutes);
+app.use('/api/users', userRoutes);  
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
