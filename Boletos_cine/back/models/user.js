@@ -3,13 +3,15 @@ const { Model } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
 module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
-    static associate(models) {}
-
-    async validatePassword(password) {
-      return bcrypt.compare(password, this.password);
-    }
+ class User extends Model {
+  static associate(models) {
+    User.hasMany(models.Boleto);
   }
+
+  async validatePassword(password) {
+    return bcrypt.compare(password, this.password);
+  }
+}
 
   User.init({
     name: {

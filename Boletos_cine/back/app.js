@@ -5,6 +5,8 @@ const { sequelize } = require('./models');
 const peliculaRoutes = require('./routes/pelicula');
 const funcionRoutes = require('./routes/funcion');
 const userRoutes = require('./routes/user'); 
+const { notFound, errorHandler } = require('./middlewares/errorHandler');
+const boletoRoutes = require('./routes/boleto'); 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,10 +18,14 @@ app.use(express.json());
 app.use('/api/peliculas', peliculaRoutes);
 app.use('/api/funciones', funcionRoutes);
 app.use('/api/users', userRoutes);  
+app.use('/api/boleto', boletoRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+app.use(notFound);
+app.use(errorHandler);
 
 const start = async () => {
   try {
