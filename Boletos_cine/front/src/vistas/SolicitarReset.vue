@@ -3,16 +3,10 @@
     <div class="auth-card">
       <div class="auth-logo">🔑</div>
       <h2 class="auth-title">Recuperar contraseña</h2>
-      <p class="auth-subtitle">Ingresa tu email y te daremos un código para restablecerla</p>
+      <p class="auth-subtitle">Ingresa tu email para restablecer tu contraseña</p>
 
       <div v-if="error" class="auth-message error">{{ error }}</div>
-      <div v-if="resultado" class="auth-message exito">
-        {{ resultado.message }}
-        <div v-if="resultado.token" class="token-box">
-          <p>Tu código (modo desarrollo):</p>
-          <code>{{ resultado.token }}</code>
-        </div>
-      </div>
+      <div v-if="exito" class="auth-message exito">{{ exito }}</div>
 
       <form class="auth-form" @submit.prevent="solicitar">
         <div class="auth-field">
@@ -24,9 +18,6 @@
       </form>
 
       <p class="auth-footer">
-        <router-link to="/resetear">Ya tengo un código</router-link>
-      </p>
-      <p class="auth-footer">
         <router-link to="/login">← Volver al login</router-link>
       </p>
     </div>
@@ -36,20 +27,24 @@
 <script setup>
 import '../styles/Auth.css'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '../api'
+import { resetToken } from '../stores/resetToken'
 
+const router = useRouter()
 const email = ref('')
 const error = ref('')
-const resultado = ref(null)
+const exito = ref('')
 const cargando = ref(false)
 
 const solicitar = async () => {
   error.value = ''
-  resultado.value = null
+  exito.value = ''
   cargando.value = true
   try {
     const res = await api.post('/api/users/solicitar-reset', { email: email.value })
-    resultado.value = res.data
+    resetToken.value = res.data.token
+    router.push('/resetear')
   } catch (err) {
     error.value = err.response?.data?.message || err.response?.data?.error || 'Error al solicitar el restablecimiento'
   } finally {
