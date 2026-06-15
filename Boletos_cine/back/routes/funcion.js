@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Funcion, Pelicula } = require('../models');
 const authenticate = require('../middlewares/authenticate');
-const { validateFields } = require('../middlewares/validate');
+const { validateFields, validateTypes } = require('../middlewares/validate');
 
 // GET todas las funciones - PÚBLICA (Soporta query params de filtrado)
 router.get('/', async (req, res, next) => {
@@ -54,7 +54,7 @@ router.get('/pelicula/:peliculaId', async (req, res, next) => {
 });
 
 // POST crear función - PROTEGIDA
-router.post('/', authenticate, validateFields(['fecha', 'hora', 'sala', 'precio', 'PeliculaId']), async (req, res, next) => {
+router.post('/', authenticate, validateFields(['fecha', 'hora', 'sala', 'precio', 'PeliculaId']), validateTypes({ precio: 'number' }), async (req, res, next) => {
   try {
     const { fecha, hora, sala, precio, PeliculaId, estado } = req.body;
     const pelicula = await Pelicula.findByPk(PeliculaId);
@@ -69,7 +69,7 @@ router.post('/', authenticate, validateFields(['fecha', 'hora', 'sala', 'precio'
 });
 
 // PUT actualizar función - PROTEGIDA
-router.put('/:id', authenticate, async (req, res, next) => {
+router.put('/:id', authenticate, validateTypes({ precio: 'number' }), async (req, res, next) => {
   try {
     const funcion = await Funcion.findByPk(req.params.id);
     if (!funcion) {

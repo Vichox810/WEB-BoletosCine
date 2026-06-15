@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Pelicula, Funcion } = require('../models');
 const authenticate = require('../middlewares/authenticate');
-const { validateFields } = require('../middlewares/validate');
+const { validateFields, validateTypes } = require('../middlewares/validate');
 
 // GET todas las películas - PÚBLICA
 router.get('/', async (req, res, next) => {
@@ -32,7 +32,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // POST crear película - PROTEGIDA
-router.post('/', authenticate, validateFields(['titulo', 'genero', 'duracion']), async (req, res, next) => {
+router.post('/', authenticate, validateFields(['titulo', 'genero', 'duracion']), validateTypes({ duracion: 'number' }), async (req, res, next) => {
   try {
     const { titulo, genero, duracion, sinopsis, imagen } = req.body;
     const pelicula = await Pelicula.create({ titulo, genero, duracion: Number(duracion), sinopsis, imagen });
@@ -43,7 +43,7 @@ router.post('/', authenticate, validateFields(['titulo', 'genero', 'duracion']),
 });
 
 // PUT actualizar película - PROTEGIDA
-router.put('/:id', authenticate, async (req, res, next) => {
+router.put('/:id', authenticate, validateTypes({ duracion: 'number' }), async (req, res, next) => {
   try {
     const pelicula = await Pelicula.findByPk(req.params.id);
     if (!pelicula) {
