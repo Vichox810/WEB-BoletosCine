@@ -3,7 +3,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert('Promocions', [{
-      codigo: 'CINE10',
+      codigo: 'FRUTILLAR',
       descuento: 10,
       descripcion: '10% de descuento en tu compra',
       activa: true,

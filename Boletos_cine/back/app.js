@@ -50,7 +50,7 @@ const start = async () => {
       const promoCount = await Promocion.count();
       if (promoCount === 0) {
         await Promocion.bulkCreate([
-          { codigo: 'CINE10', descuento: 10, descripcion: '10% de descuento en tu compra', activa: true, usosMaximos: 100, usosActuales: 0 },
+          { codigo: 'FRUTILLAR', descuento: 10, descripcion: '10% de descuento en tu compra', activa: true, usosMaximos: 100, usosActuales: 0 },
           { codigo: 'BIENVENIDO', descuento: 20, descripcion: '20% de descuento para nuevos usuarios', activa: true, usosMaximos: 50, usosActuales: 0 },
         ]);
         console.log('Promociones de demo creadas.');
