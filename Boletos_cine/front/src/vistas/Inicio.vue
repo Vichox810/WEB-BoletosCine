@@ -1,158 +1,96 @@
 <template>
-  <div class="home">
-    <!-- Navbar -->
-    <nav class="navbar">
-      <div class="navbar-container">
-        <div class="logo">
-          <span class="logo-icon">🎬</span>
-          <span class="logo-text">FrutiCine</span>
-        </div>
-        <div class="nav-links">
-          <router-link to="/peliculas" class="nav-link">Películas</router-link>
-          <router-link to="/funciones" class="nav-link">Funciones</router-link>
-          <router-link v-if="user.role === 'admin'" to="/dashboard" class="nav-link admin-link">📊 Panel de Administrador</router-link>
-          <span v-if="user.role === 'admin'" class="role-badge admin-badge">👨‍💼 Administrador</span>
-          <span v-else class="role-badge user-badge">👤 Usuario</span>
-          <button @click="logout" class="nav-button logout">Cerrar Sesión</button>
-        </div>
-      </div>
-    </nav>
+  <div class="container">
+    <!-- Encabezado Principal -->
+    <div class="header">
+      <h2>¡Bienvenido a FrutiCine!</h2>
+      <button @click="irACartelera">Ver Cartelera Completa</button>
+    </div>
 
-    <!-- User Welcome Section -->
-    <section class="welcome">
-      <div class="welcome-content">
-        <h1>¡Bienvenido, {{ user.name }}! 🎉</h1>
-        <p class="welcome-subtitle">Vuelve a disfrutar de las mejores películas</p>
-        <div class="user-info">
-          <div class="info-card">
-            <span class="info-label">Email</span>
-            <span class="info-value">{{ user.email }}</span>
-          </div>
-          <div class="info-card">
-            <span class="info-label">Rol</span>
-            <span class="info-value">{{ user.role }}</span>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- Sección Informativa con estilo Limpio -->
+    <div class="bienvenida-banner">
+      <h3>La mejor experiencia cinematográfica</h3>
+      <p>Selecciona tus películas favoritas, consulta los horarios disponibles en tiempo real y reserva tus asientos de forma digital desde la comodidad de tu hogar.</p>
+    </div>
 
-    <!-- Quick Actions -->
-    <section class="quick-actions">
-      <h2>{{ user.role === 'admin' ? 'Panel de Gestión' : 'Acciones Rápidas' }}</h2>
-      <div class="actions-grid">
-        <div class="action-card" @click="router.push('/peliculas')">
-          <div class="action-icon">🎬</div>
-          <h3>Ver Películas</h3>
-          <p>Explora nuestro catálogo completo</p>
+    <h3 class="seccion-titulo">Películas Destacadas</h3>
+    
+    <!-- Rejilla con tus imágenes y películas reales -->
+    <div class="lista">
+      <div v-for="pelicula in peliculasDestacadas" :key="pelicula.id" class="card">
+        <div class="poster-container">
+          <img 
+            :src="obtenerRutaImagen(pelicula)" 
+            :alt="pelicula.titulo"
+            @error="imagenError"
+          >
+          <span class="badge-duracion">{{ pelicula.duracion }} min</span>
         </div>
-        <div class="action-card" @click="router.push('/funciones')">
-          <div class="action-icon">📅</div>
-          <h3>Ver Funciones</h3>
-          <p>Consulta horarios disponibles</p>
-        </div>
-        <div v-if="user.role !== 'admin'" class="action-card" @click="goToComprar">
-          <div class="action-icon">🎟️</div>
-          <h3>Mis Entradas</h3>
-          <p>Revisa tus compras</p>
-        </div>
-      </div>
-      <div v-if="user.role === 'admin'" class="action-card" @click="router.push('/usuarios')">
-        <div class="action-icon">👥</div>
-        <h3>Ver Usuarios</h3>
-        <p>Gestiona los usuarios registrados</p>
-      </div>
-    </section>
-
-    <!-- Featured Movies Section -->
-    <section class="featured">
-      <h2>Películas en Cartelera</h2>
-      <p class="featured-subtitle">No te pierdas los estrenos de esta semana</p>
-      <div class="featured-grid">
-        <div class="featured-card">
-          <img src="/movies/pelicula1.jpg" alt="Película Destacada 1" class="featured-image">
-          <div class="featured-info">
-            <h3>Backrooms</h3>
-            <p>Género: terror psicológico y terror cósmico</p>
-            <div class="rating">⭐ 4.9/5</div>
-          </div>
-        </div>
-        <div class="featured-card">
-          <img src="/movies/pelicula2.jpg" alt="Película Destacada 2" class="featured-image">
-          <div class="featured-info">
-            <h3>Mario Galaxy</h3>
-            <p>Género: acción, aventura y comedia</p>
-            <div class="rating">⭐ 4.9/5</div>
-          </div>
-        </div>
-        <div class="featured-card">
-          <img src="/movies/pelicula3.jpg" alt="Película Destacada 3" class="featured-image">
-          <div class="featured-info">
-            <h3>El viaje de Chihiro</h3>
-            <p>Género: Fantasia, Aventura, Drama</p>
-            <div class="rating">⭐ 4.7/5</div>
-          </div>
+        <div class="info">
+          <span class="genero">{{ pelicula.genero }}</span>
+          <h3>{{ pelicula.titulo }}</h3>
+          <p class="sinopsis">{{ pelicula.sinopsis }}</p>
         </div>
       </div>
-      <router-link to="/peliculas" class="btn btn-outline">Ver Todas las Películas</router-link>
-    </section>
-
-    <!-- Stats Section -->
-    <section class="stats">
-      <div class="stat-card">
-        <div class="stat-number">50+</div>
-        <div class="stat-label">Películas</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">100+</div>
-        <div class="stat-label">Funciones Diarias</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">4.9★</div>
-        <div class="stat-label">Calificación</div>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h4>Sobre FrutiCine</h4>
-          <p>Tu plataforma de confianza para disfrutar del mejor cine</p>
-        </div>
-        <div class="footer-section">
-          <h4>Enlaces Rápidos</h4>
-          <ul>
-            <li><router-link to="/peliculas">Películas</router-link></li>
-            <li><router-link to="/funciones">Funciones</router-link></li>
-          </ul>
-        </div>
-        <div class="footer-section">
-          <h4>Contacto</h4>
-          <p>Email: info@fruticine.com</p>
-          <p>Teléfono: (555) 123-4567</p>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2026 FrutiCine. Todos los derechos reservados.</p>
-      </div>
-    </footer>
+    </div>
   </div>
 </template>
 
 <script setup>
-import '../styles/Inicio.css'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '../api'
 
 const router = useRouter()
-const user = JSON.parse(localStorage.getItem('user') || '{}')
+const peliculasDestacadas = ref([])
 
-const logout = () => {
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
-  router.push('/login')
-}
-
-const goToComprar = () => {
+const irACartelera = () => {
   router.push('/funciones')
 }
+
+// Función con asignación manual para tus dos películas específicas
+const obtenerRutaImagen = (pelicula) => {
+  
+  // 1. Condición para Backrooms 2
+  if (pelicula.titulo === 'Backrooms 2') {
+    return '/movies/pelicula1.jpg'
+  }
+
+  // 2. Condición para El viaje de Chihiro
+  if (pelicula.titulo === 'El viaje de Chihiro') {
+    return '/movies/pelicula3.jpg'
+  }
+
+  // Respaldo dinámico por si agregas una tercera película en el futuro
+  const ruta = pelicula.imagen
+  if (!ruta) return '/movies/pelicula1.jpg'
+  
+  if (!ruta.startsWith('movies/') && !ruta.startsWith('/movies/')) {
+    return `/movies/${ruta}`
+  }
+  
+  return ruta.startsWith('/') ? ruta : `/${ruta}`
+}
+
+// Respaldo en caso de error crítico
+const imagenError = (event) => {
+  event.target.src = '/movies/pelicula1.jpg'
+}
+
+// Cargar las películas desde tu API de Node
+const cargarPeliculas = async () => {
+  try {
+    const res = await api.get('/api/peliculas')
+    peliculasDestacadas.value = res.data.slice(0, 3)
+  } catch (error) {
+    console.error("Error al cargar las películas en el inicio:", error)
+  }
+}
+
+onMounted(() => {
+  cargarPeliculas()
+})
 </script>
+
+<style scoped>
+@import '../styles/Inicio.css';
+</style>

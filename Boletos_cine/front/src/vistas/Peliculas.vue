@@ -7,6 +7,7 @@
       </button>
     </div>
 
+    <!-- Formulario de Agregar / Editar -->
     <div v-if="mostrarFormulario" class="formulario">
       <h3>{{ editando ? 'Editar película' : 'Agregar película' }}</h3>
       <div v-if="error" class="error">{{ error }}</div>
@@ -19,15 +20,36 @@
       </button>
     </div>
 
-    <div v-if="cargandoLista">Cargando películas...</div>
-    <div v-else-if="peliculas.length === 0">No hay películas registradas.</div>
 
+    <div v-if="!cargandoLista && peliculas.length > 0" class="filtros-container">
+      <input 
+        v-model="filtroTitulo" 
+        type="text" 
+        placeholder="Buscar película por título..." 
+        class="input-filtro"
+      />
+      <select v-model="filtroGenero" class="select-filtro">
+        <option value="">Todos los géneros</option>
+        <option v-for="genero in listaGeneros" :key="genero" :value="genero">
+          {{ genero }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Estados de Carga y Vacío -->
+    <div v-if="cargandoLista">Cargando películas...</div>
+    <div v-else-if="peliculasFiltradas.length === 0" class="no-resultados">
+      No se encontraron películas con los filtros aplicados.
+    </div>
+
+    <!-- Renderizado del Catálogo Filtrado -->
     <div v-else class="lista">
-      <div v-for="pelicula in peliculas" :key="pelicula.id" class="card">
+      <div v-for="pelicula in peliculasFiltradas" :key="pelicula.id" class="card">
         <div class="info">
           <h3>{{ pelicula.titulo }}</h3>
-          <p>{{ pelicula.genero }} · {{ pelicula.duracion }} min</p>
-          <p v-if="pelicula.sinopsis">{{ pelicula.sinopsis }}</p>
+          <span class="badge-genero">{{ pelicula.genero }}</span>
+          <p class="meta-info">{{ pelicula.duracion }} min</p>
+          <p v-if="pelicula.sinopsis" class="sinopsis">{{ pelicula.sinopsis }}</p>
         </div>
         <div class="acciones" v-if="isAdmin()">
           <button class="btn-editar" @click="abrirEditar(pelicula)">Editar</button>
@@ -40,8 +62,8 @@
 
 <script setup>
 import '../styles/Peliculas.css'
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import { ref, onMounted, computed } from 'vue'
+import api from '../api'
 
 const peliculas = ref([])
 const cargandoLista = ref(true)
@@ -52,15 +74,39 @@ const editando = ref(false)
 const editandoId = ref(null)
 const form = ref({ titulo: '', genero: '', duracion: '', sinopsis: '' })
 
+// Estados para el manejo de filtros (RQ-07)
+const filtroTitulo = ref('')
+const filtroGenero = ref('')
+
 const token = localStorage.getItem('token')
 const authHeader = { headers: { Authorization: `Bearer ${token}` } }
 const user = JSON.parse(localStorage.getItem('user') || '{}')
 
 const isAdmin = () => user.role === 'admin'
 
+// Extrae dinámicamente los géneros existentes en la BD para armar el selector
+const listaGeneros = computed(() => {
+  const generos = peliculas.value.map(p => p.genero?.trim())
+  return [...new Set(generos)].filter(Boolean)
+})
+
+// PROPIEDAD COMPUTADA CRÍTICA: Aplica los filtros en tiempo real
+const peliculasFiltradas = computed(() => {
+  return peliculas.value.filter(pelicula => {
+    const coincideTitulo = pelicula.titulo
+      ?.toLowerCase()
+      .includes(filtroTitulo.value.toLowerCase())
+    
+    const coincideGenero = !filtroGenero.value || 
+      pelicula.genero?.toLowerCase() === filtroGenero.value.toLowerCase()
+
+    return coincideTitulo && coincideGenero
+  })
+})
+
 const cargarPeliculas = async () => {
   try {
-    const res = await axios.get('http://localhost:3000/api/peliculas')
+    const res = await api.get('/api/peliculas')
     peliculas.value = res.data
   } catch {
     error.value = 'Error al cargar películas'
@@ -80,7 +126,7 @@ const crearPelicula = async () => {
   error.value = ''
   cargando.value = true
   try {
-    await axios.post('http://localhost:3000/api/peliculas', form.value, authHeader)
+    await api.post('/api/peliculas', form.value, authHeader)
     form.value = { titulo: '', genero: '', duracion: '', sinopsis: '' }
     mostrarFormulario.value = false
     await cargarPeliculas()
@@ -95,7 +141,7 @@ const actualizarPelicula = async () => {
   error.value = ''
   cargando.value = true
   try {
-    await axios.put(`http://localhost:3000/api/peliculas/${editandoId.value}`, form.value, authHeader)
+    await api.put(`/api/peliculas/${editandoId.value}`, form.value, authHeader)
     form.value = { titulo: '', genero: '', duracion: '', sinopsis: '' }
     mostrarFormulario.value = false
     editando.value = false
@@ -111,7 +157,7 @@ const actualizarPelicula = async () => {
 const eliminarPelicula = async (id) => {
   if (!confirm('¿Eliminar esta película?')) return
   try {
-    await axios.delete(`http://localhost:3000/api/peliculas/${id}`, authHeader)
+    await api.delete(`/api/peliculas/${id}`, authHeader)
     await cargarPeliculas()
   } catch {
     error.value = 'Error al eliminar película'

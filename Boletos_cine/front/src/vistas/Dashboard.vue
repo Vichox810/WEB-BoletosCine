@@ -1,24 +1,9 @@
 <template>
   <div class="dashboard">
-    <!-- Navbar -->
-    <nav class="navbar">
-      <div class="navbar-container">
-        <div class="logo">
-          <span class="logo-icon">🎬</span>
-          <span class="logo-text">FrutiCine</span>
-        </div>
-        <div class="nav-links">
-          <router-link to="/inicio" class="nav-link">Inicio</router-link>
-          <router-link to="/peliculas" class="nav-link">Películas</router-link>
-          <router-link to="/funciones" class="nav-link">Funciones</router-link>
-          <router-link to="/dashboard" class="nav-link admin-link">📊 Panel de Administrador</router-link>
-          <button @click="logout" class="nav-button logout">Cerrar Sesión</button>
-        </div>
-      </div>
-    </nav>
+    <!-- Se eliminó la navbar duplicada que causaba el desorden visual -->
 
     <div class="dashboard-content">
-      <h1> Panel de Administrador</h1>
+      <h1>Panel de Administrator</h1>
       <p class="subtitle">Resumen general del sistema</p>
 
       <!-- Stats Cards -->
@@ -78,7 +63,7 @@
 
       <!-- Funciones recientes -->
       <div class="section">
-        <h2> Próximas funciones</h2>
+        <h2>Próximas funciones</h2>
         <div class="table-container">
           <table>
             <thead>
@@ -111,7 +96,7 @@
 import '../styles/Dashboard.css'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '../api'
 
 const router = useRouter()
 const token = localStorage.getItem('token')
@@ -121,6 +106,7 @@ const stats = ref({ usuarios: 0, peliculas: 0, funciones: 0 })
 const ultimosUsuarios = ref([])
 const ultimasFunciones = ref([])
 
+// Dejamos la función logout intacta por si la necesitas referenciar desde otro componente, aunque ya no se use en este HTML
 const logout = () => {
   localStorage.removeItem('token')
   localStorage.removeItem('user')
@@ -130,9 +116,9 @@ const logout = () => {
 onMounted(async () => {
   try {
     const [usersRes, peliculasRes, funcionesRes] = await Promise.all([
-      axios.get('http://localhost:3000/api/users', authHeader),
-      axios.get('http://localhost:3000/api/peliculas'),
-      axios.get('http://localhost:3000/api/funciones')
+      api.get('/api/users', authHeader),
+      api.get('/api/peliculas'),
+      api.get('/api/funciones')
     ])
 
     stats.value = {

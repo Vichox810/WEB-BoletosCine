@@ -1,21 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const { User } = require('../models');
 const jwt = require('jsonwebtoken');
 const authenticate = require('../middlewares/authenticate');
+const { User, PasswordResetToken } = require('../models');
+const crypto = require('crypto');
+const { validateFields, validateEmail } = require('../middlewares/validate');
 
 // POST /api/users/register
-router.post('/register', async (req, res) => {
+router.post('/register', validateFields(['name', 'email', 'password']), async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: 'Nombre, email y contraseña son requeridos' });
+    if (!validateEmail(email)) {
+      return res.status(400).json({ error: true, message: 'Formato de email inválido' });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ error: true, message: 'La contraseña debe tener al menos 8 caracteres' });
     }
 
     const existing = await User.findOne({ where: { email } });
     if (existing) {
-      return res.status(409).json({ error: 'El email ya está registrado' });
+      return res.status(409).json({ error: true, message: 'El email ya está registrado' });
     }
 
     const user = await User.create({ name, email, password });
@@ -26,31 +31,23 @@ router.post('/register', async (req, res) => {
     });
 
   } catch (error) {
-    if (error.name === 'SequelizeValidationError') {
-      return res.status(400).json({ error: error.errors.map(e => e.message) });
-    }
-    console.error(error);
-    return res.status(500).json({ error: 'Error interno del servidor' });
+    next(error);
   }
 });
 
 // POST /api/users/login
-router.post('/login', async (req, res) => {
+router.post('/login', validateFields(['email', 'password']), async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email y contraseña son requeridos' });
-    }
-
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(401).json({ error: 'Credenciales inválidas' });
+      return res.status(401).json({ error: true, message: 'Credenciales inválidas' });
     }
 
     const passwordValida = await user.validatePassword(password);
     if (!passwordValida) {
-      return res.status(401).json({ error: 'Credenciales inválidas' });
+      return res.status(401).json({ error: true, message: 'Credenciales inválidas' });
     }
 
     const token = jwt.sign(
@@ -66,23 +63,87 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Error interno del servidor' });
+    next(error);
   }
-}); 
+});
 
-router.get('/', authenticate, async (req, res) => {
+// GET /api/users - solo admins
+router.get('/', authenticate, async (req, res, next) => {
   try {
     if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Acceso denegado' })
+      return res.status(403).json({ error: true, message: 'Acceso denegado' })
     }
     const users = await User.findAll({
       attributes: { exclude: ['password'] }
     })
     res.json(users)
   } catch (error) {
-    res.status(500).json({ error: 'Error interno del servidor' })
+    next(error)
   }
 })
+
+// POST /api/users/solicitar-reset
+router.post('/solicitar-reset', async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: true, message: 'El email es requerido' });
+    }
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.json({ message: 'Si el email existe, se generó un token de restablecimiento' });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    await PasswordResetToken.create({ token, UserId: user.id, expiresAt });
+
+    return res.json({
+      message: 'Token de restablecimiento generado (modo desarrollo)',
+      token
+    });
+
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/users/resetear
+router.post('/resetear', validateFields(['token', 'password']), async (req, res, next) => {
+  try {
+    const { token, password } = req.body;
+
+    if (password.length < 8) {
+      return res.status(400).json({ error: true, message: 'La contraseña debe tener al menos 8 caracteres' });
+    }
+
+    const resetToken = await PasswordResetToken.findOne({ where: { token } });
+    if (!resetToken) {
+      return res.status(400).json({ error: true, message: 'Token inválido' });
+    }
+
+    if (resetToken.expiresAt < new Date()) {
+      await resetToken.destroy();
+      return res.status(400).json({ error: true, message: 'El token ha expirado' });
+    }
+
+    const user = await User.findByPk(resetToken.UserId);
+    if (!user) {
+      return res.status(404).json({ error: true, message: 'Usuario no encontrado' });
+    }
+
+    user.password = password;
+    await user.save();
+    await resetToken.destroy();
+
+    return res.json({ message: 'Contraseña actualizada exitosamente' });
+
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;

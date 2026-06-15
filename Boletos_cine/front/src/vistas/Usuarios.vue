@@ -21,7 +21,7 @@
 <script setup>
 import '../styles/Usuarios.css'
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '../api'
 
 const usuarios = ref([])
 const cargando = ref(true)
@@ -31,7 +31,7 @@ const token = localStorage.getItem('token')
 
 onMounted(async () => {
   try {
-    const res = await axios.get('http://localhost:3000/api/users', {
+    const res = await api.get('/api/users', {
       headers: { Authorization: `Bearer ${token}` }
     })
     usuarios.value = res.data

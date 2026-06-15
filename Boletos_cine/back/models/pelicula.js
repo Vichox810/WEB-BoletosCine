@@ -15,9 +15,24 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Pelicula.init({
-    titulo: DataTypes.STRING,
-    genero: DataTypes.STRING,
-    duracion: DataTypes.INTEGER,
+    titulo: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: { notEmpty: { msg: 'El título es requerido' } }
+    },
+    genero: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: { notEmpty: { msg: 'El género es requerido' } }
+    },
+    duracion: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isInt: { msg: 'La duración debe ser un número entero' },
+        min: { args: [1], msg: 'La duración debe ser mayor a 0' }
+      }
+    },
     sinopsis: DataTypes.STRING,
     imagen: DataTypes.STRING
   }, {

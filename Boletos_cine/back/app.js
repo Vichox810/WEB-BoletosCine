@@ -7,6 +7,7 @@ const funcionRoutes = require('./routes/funcion');
 const userRoutes = require('./routes/user'); 
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
 const boletoRoutes = require('./routes/boleto'); 
+const promocionRoutes = require('./routes/promocion');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,7 +19,8 @@ app.use(express.json());
 app.use('/api/peliculas', peliculaRoutes);
 app.use('/api/funciones', funcionRoutes);
 app.use('/api/users', userRoutes);  
-app.use('/api/boleto', boletoRoutes);
+app.use('/api/boletos', boletoRoutes);
+app.use('/api/promociones', promocionRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });

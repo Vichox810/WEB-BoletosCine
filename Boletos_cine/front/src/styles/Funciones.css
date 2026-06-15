@@ -1,199 +1,239 @@
-:root {
-  --primary: #667eea;
-  --primary-dark: #5568d3;
-  --primary-light: #8b9ef8;
-  --accent: #764ba2;
-  --success: #11b981;
-  --error: #f85757;
-  --warning: #f59e0b;
-  --bg: #5568d3;
-  --bg-secondary: #eef2ff;
-  --text: #2d3748;
-  --text-light: #718096;
-  --border: #e2e8f0;
-}
-
-* {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+/* ==========================================================================
+   ESTILOS PARA EL MÓDULO DE FUNCIONES / CARTELERA (RQ-07)
+   ========================================================================== */
 
 .container {
-  max-width: 900px;
-  margin: 40px auto;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  padding: 0 16px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  color: #ffffff;
+  font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Encabezado Principal */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  padding: 0 8px;
+  margin-bottom: 30px;
 }
 
-.header h1 {
-  color: #000000;
-  font-size: 2.2em;
+.header h2 {
+  font-size: 2.2rem;
   margin: 0;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  background: none;
-  -webkit-background-clip: unset;
-  -webkit-text-fill-color: unset;
-  background-clip: unset;
+  background: linear-gradient(90deg, #ffffff, #a0aec0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.formulario {
+.header button {
+  background: linear-gradient(90deg, #ff4757, #ff6b81);
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+}
+
+.header button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 71, 87, 0.4);
+}
+
+/* ==========================================================================
+   Barra de Búsqueda y Filtros de Cartelera
+   ========================================================================== */
+
+.buscador-container {
+  background: #15141f;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 35px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.buscador-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+  box-sizing: border-box;
+}
+
+.input-grupo {
+  flex: 1;
+  min-width: 200px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 28px;
-  background: linear-gradient(135deg, white 0%, var(--bg-secondary) 100%);
-  border: 2px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.08);
-  transition: all 0.3s ease;
+  gap: 8px;
 }
 
-.formulario:hover {
-  border-color: var(--primary);
-  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.15);
-}
-
-input, select {
-  padding: 14px 16px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  font-size: 1em;
-  font-family: inherit;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  background: linear-gradient(135deg, #fafbff 0%, #f5f7ff 100%);
-  color: var(--text);
-}
-
-input:focus, select:focus {
-  outline: none;
-  border-color: var(--primary);
-  background: white;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), inset 0 2px 4px rgba(102, 126, 234, 0.05);
-  transform: translateY(-2px);
-}
-
-select {
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 20px;
-  padding-right: 36px;
-}
-
-button {
-  padding: 14px 24px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: 700;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+.input-grupo label {
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  position: relative;
+  color: #a0aec0;
+  letter-spacing: 1px;
+  font-weight: 600;
 }
 
-button:hover:not(:disabled) {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.4);
+.input-grupo select,
+.input-grupo input[type="date"] {
+  background: #1a202c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-button:active:not(:disabled) {
-  transform: translateY(-2px);
+.input-grupo select:focus,
+.input-grupo input[type="date"]:focus {
+  outline: none;
+  border-color: #ff4757;
+  box-shadow: 0 0 8px rgba(255, 71, 87, 0.2);
 }
 
-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+/* Botón Limpiar Filtros */
+.btn-limpiar {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  height: 47px; /* Alineación perfecta con los inputs */
+  transition: all 0.2s ease;
 }
+
+.btn-limpiar:hover {
+  background: rgba(255, 71, 87, 0.1);
+  border-color: rgba(255, 71, 87, 0.3);
+  color: #ff4757;
+}
+
+/* ==========================================================================
+   Estructura de Tarjetas (Catálogo / Cartelera)
+   ========================================================================== */
 
 .lista {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
 }
 
 .card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  background: white;
-  border: 2px solid var(--border);
+  background: #15141f;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%);
-  transform: scaleY(0);
-  transition: transform 0.3s ease;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
 }
 
 .card:hover {
-  border-color: var(--primary);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
   transform: translateY(-4px);
+  border-color: rgba(255, 71, 87, 0.2);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
 }
 
-.card:hover::before {
-  transform: scaleY(1);
+.info h3 {
+  font-size: 1.4rem;
+  margin: 0 0 10px 0;
+  color: #ffffff;
 }
 
-.btn-eliminar {
-  background: linear-gradient(135deg, var(--error) 0%, #d43f3f 100%);
-  box-shadow: 0 8px 20px rgba(248, 87, 87, 0.3);
+.info p {
+  color: #a0aec0;
+  margin: 6px 0;
+  font-size: 0.95rem;
 }
 
-.btn-eliminar:hover:not(:disabled) {
-  box-shadow: 0 12px 28px rgba(248, 87, 87, 0.4);
+/* Distintivo de Cancelación */
+.badge-cancelada {
+  display: inline-block;
+  background: rgba(255, 71, 87, 0.15) !important;
+  color: #ff4757 !important;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 71, 87, 0.2);
+  margin-top: 10px !important;
+}
+
+/* Botones y Acciones del Módulo */
+.acciones {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-comprar {
+  flex: 2;
+  background: linear-gradient(90deg, #ff4757, #ff6b81);
+  color: #ffffff;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-comprar:hover {
+  opacity: 0.9;
+}
+
+.btn-editar, .btn-eliminar {
+  flex: 1;
+  background: #2d3748;
+  color: #e2e8f0;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-editar:hover { background: #4a5568; }
+.btn-eliminar:hover { background: #ff4757; color: #ffffff; }
+
+/* Formularios y Errores */
+.formulario {
+  background: #15141f;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(255, 71, 87, 0.2);
+}
+
+.formulario input, .formulario select {
+  width: 100%;
+  background: #1a202c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  color: #ffffff;
+  margin-bottom: 15px;
 }
 
 .error {
-  color: var(--error);
-  font-size: 0.9em;
-  margin-top: -12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.error::before {
-  content: '⚠';
-  font-size: 1.1em;
-}
-
-.acciones { display: flex; gap: 8px; }
-.btn-editar {
-  padding: 8px 14px;
-  background-color: #f6ad55;
-  color: white;
-  border: none;
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  color: #ff4757;
+  padding: 12px;
   border-radius: 6px;
-  cursor: pointer;
-} 
+  margin-bottom: 15px;
+}

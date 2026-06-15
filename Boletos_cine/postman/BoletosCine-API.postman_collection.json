@@ -1,0 +1,279 @@
+{
+  "info": {
+    "name": "Boletos Cine API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Colección de pruebas para la API de Boletos Cine. Usa variables {{baseUrl}} y {{token}}."
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Registro exitoso",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Juan Pérez\",\n  \"email\": \"juan@mail.com\",\n  \"password\": \"mipass123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/users/register", "host": ["{{baseUrl}}"], "path": ["api", "users", "register"] }
+          }
+        },
+        {
+          "name": "Registro - email inválido (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Test\",\n  \"email\": \"email-invalido\",\n  \"password\": \"12345678\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/users/register", "host": ["{{baseUrl}}"], "path": ["api", "users", "register"] }
+          }
+        },
+        {
+          "name": "Registro - email duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Juan Pérez\",\n  \"email\": \"juan@mail.com\",\n  \"password\": \"mipass123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/users/register", "host": ["{{baseUrl}}"], "path": ["api", "users", "register"] }
+          }
+        },
+        {
+          "name": "Login exitoso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('token', jsonData.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"juan@mail.com\",\n  \"password\": \"mipass123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/users/login", "host": ["{{baseUrl}}"], "path": ["api", "users", "login"] }
+          }
+        },
+        {
+          "name": "Login - credenciales inválidas (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"juan@mail.com\",\n  \"password\": \"wrongpass\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/users/login", "host": ["{{baseUrl}}"], "path": ["api", "users", "login"] }
+          }
+        },
+        {
+          "name": "Solicitar reset password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"juan@mail.com\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/users/solicitar-reset", "host": ["{{baseUrl}}"], "path": ["api", "users", "solicitar-reset"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Películas",
+      "item": [
+        {
+          "name": "Listar todas",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/peliculas", "host": ["{{baseUrl}}"], "path": ["api", "peliculas"] } }
+        },
+        {
+          "name": "Crear (requiere token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Duna: Parte Dos\",\n  \"genero\": \"Ciencia Ficción\",\n  \"duracion\": 166,\n  \"sinopsis\": \"Paul Atreides continúa su viaje...\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/peliculas", "host": ["{{baseUrl}}"], "path": ["api", "peliculas"] }
+          }
+        },
+        {
+          "name": "Crear - sin token (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Test\",\n  \"genero\": \"Acción\",\n  \"duracion\": 120\n}" },
+            "url": { "raw": "{{baseUrl}}/api/peliculas", "host": ["{{baseUrl}}"], "path": ["api", "peliculas"] }
+          }
+        },
+        {
+          "name": "Crear - campos faltantes (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Solo título\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/peliculas", "host": ["{{baseUrl}}"], "path": ["api", "peliculas"] }
+          }
+        },
+        {
+          "name": "Actualizar (requiere token)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Duna: Parte Dos (Actualizado)\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/peliculas/1", "host": ["{{baseUrl}}"], "path": ["api", "peliculas", "1"] }
+          }
+        },
+        {
+          "name": "Eliminar (requiere token)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/peliculas/1", "host": ["{{baseUrl}}"], "path": ["api", "peliculas", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Funciones",
+      "item": [
+        {
+          "name": "Listar todas",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/funciones", "host": ["{{baseUrl}}"], "path": ["api", "funciones"] } }
+        },
+        {
+          "name": "Filtrar por película y fecha (rq-07)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/funciones?PeliculaId=1&fecha=2026-06-20", "host": ["{{baseUrl}}"], "path": ["api", "funciones"], "query": [{ "key": "PeliculaId", "value": "1" }, { "key": "fecha", "value": "2026-06-20" }] }
+          }
+        },
+        {
+          "name": "Crear (requiere token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"PeliculaId\": 1,\n  \"fecha\": \"2026-06-20\",\n  \"hora\": \"20:00\",\n  \"sala\": \"Sala 1\",\n  \"precio\": 5000\n}" },
+            "url": { "raw": "{{baseUrl}}/api/funciones", "host": ["{{baseUrl}}"], "path": ["api", "funciones"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Compras",
+      "item": [
+        {
+          "name": "Comprar boleto (requiere token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"FuncionId\": 1,\n  \"asiento\": \"5\",\n  \"totalPagado\": 5000\n}" },
+            "url": { "raw": "{{baseUrl}}/api/boletos", "host": ["{{baseUrl}}"], "path": ["api", "boletos"] }
+          }
+        },
+        {
+          "name": "Comprar - asiento ocupado (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"FuncionId\": 1,\n  \"asiento\": \"5\",\n  \"totalPagado\": 5000\n}" },
+            "url": { "raw": "{{baseUrl}}/api/boletos", "host": ["{{baseUrl}}"], "path": ["api", "boletos"] }
+          }
+        },
+        {
+          "name": "Comprar - sin token (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"FuncionId\": 1,\n  \"asiento\": \"10\",\n  \"totalPagado\": 5000\n}" },
+            "url": { "raw": "{{baseUrl}}/api/boletos", "host": ["{{baseUrl}}"], "path": ["api", "boletos"] }
+          }
+        },
+        {
+          "name": "Ver detalle boleto (requiere token)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/boletos/1", "host": ["{{baseUrl}}"], "path": ["api", "boletos", "1"] }
+          }
+        },
+        {
+          "name": "Ver boletos de función (requiere token)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/boletos/funcion/1", "host": ["{{baseUrl}}"], "path": ["api", "boletos", "funcion", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Promociones (rq-10)",
+      "item": [
+        {
+          "name": "Validar código promocional",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"CINE10\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/promociones/validar", "host": ["{{baseUrl}}"], "path": ["api", "promociones", "validar"] }
+          }
+        },
+        {
+          "name": "Validar - código inválido (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"INVALIDO\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/promociones/validar", "host": ["{{baseUrl}}"], "path": ["api", "promociones", "validar"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] } }
+        },
+        {
+          "name": "404 - ruta inexistente",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/ruta-inexistente", "host": ["{{baseUrl}}"], "path": ["api", "ruta-inexistente"] } }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

@@ -1,77 +1,88 @@
 const express = require('express');
 const router = express.Router();
-const { Boleto, Funcion, Pelicula } = require('../models');
+const { Boleto, Funcion, Pelicula, Promocion } = require('../models');
 const authenticate = require('../middlewares/authenticate');
+const { validateFields } = require('../middlewares/validate');
 
-// POST /api/boletos - comprar boleto (requiere token)
-router.post('/', authenticate, async (req, res, next) => {
+// POST /api/boletos - comprar boleto
+router.post('/', authenticate, validateFields(['FuncionId', 'asiento']), async (req, res, next) => {
   try {
-    const { FuncionId, asiento } = req.body;
-
-    if (!FuncionId || !asiento) {
-      return res.status(400).json({ error: true, message: 'FuncionId y asiento son requeridos' });
-    }
+    const { FuncionId, asiento, totalPagado, codigoPromo } = req.body;
 
     const funcion = await Funcion.findByPk(FuncionId);
     if (!funcion) {
       return res.status(404).json({ error: true, message: 'Función no encontrada' });
     }
 
-    // rq-06: no reservar en función cancelada
     if (funcion.estado === 'cancelada') {
-      return res.status(409).json({ error: true, message: 'Esta función fue cancelada' });
+      return res.status(409).json({ error: true, message: 'No puedes comprar en una función cancelada' });
     }
 
-    // rq-06: no reservar en función que ya inició
-    const fechaHoraFuncion = new Date(funcion.fecha);
-    const [horas, minutos] = funcion.hora.split(':');
-    fechaHoraFuncion.setHours(Number(horas), Number(minutos), 0, 0);
-
-    if (fechaHoraFuncion <= new Date()) {
-      return res.status(409).json({ error: true, message: 'Esta función ya inició, no se pueden reservar asientos' });
+    const ahora = new Date();
+    const fechaFuncion = new Date(funcion.fecha);
+    if (fechaFuncion < new Date(ahora.toISOString().split('T')[0])) {
+      return res.status(409).json({ error: true, message: 'No puedes comprar en una función ya pasada' });
+    }
+    if (fechaFuncion.toISOString().split('T')[0] === ahora.toISOString().split('T')[0]) {
+      const horaFuncion = funcion.hora.split(':');
+      const horaActual = ahora.getHours();
+      const minActual = ahora.getMinutes();
+      if (Number(horaFuncion[0]) < horaActual || (Number(horaFuncion[0]) === horaActual && Number(horaFuncion[1]) <= minActual)) {
+        return res.status(409).json({ error: true, message: 'No puedes comprar en una función ya iniciada' });
+      }
     }
 
-    // rq-05: no vender el mismo asiento dos veces (restricción única en BD)
+    if (codigoPromo) {
+      const promo = await Promocion.findOne({ where: { codigo: codigoPromo.toUpperCase() } });
+      if (promo) {
+        await promo.increment('usosActuales');
+      }
+    }
+
     const boleto = await Boleto.create({
-      asiento,
-      FuncionId,
-      UserId: req.user.id
+      asiento: String(asiento),
+      FuncionId: FuncionId,
+      UserId: req.user.id,
+      totalPagado: totalPagado || 0,
+      codigoPromo: codigoPromo ? codigoPromo.toUpperCase() : null
     });
 
-    return res.status(201).json({ message: 'Boleto comprado exitosamente', boleto });
-
+    return res.status(201).json(boleto);
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(409).json({ error: true, message: 'Este asiento ya está ocupado para esta función' });
+      return res.status(409).json({ error: true, message: 'Este asiento ya está ocupado' });
     }
     next(error);
   }
 });
 
-// GET /api/boletos/funcion/:funcionId - ver asientos ocupados
-router.get('/funcion/:funcionId', authenticate, async (req, res, next) => {
+// GET /api/boletos/:id - ver detalle
+router.get('/:id', authenticate, async (req, res, next) => {
   try {
-    const boletos = await Boleto.findAll({
-      where: { FuncionId: req.params.funcionId },
-      attributes: ['id', 'asiento']
+    const boleto = await Boleto.findByPk(req.params.id, {
+      include: [{ 
+        model: Funcion, 
+        include: [{ model: Pelicula }] 
+      }]
     });
-    res.json(boletos);
+
+    if (!boleto) {
+      return res.status(404).json({ error: true, message: 'Boleto no encontrado' });
+    }
+
+    return res.json(boleto.toJSON());
   } catch (error) {
     next(error);
   }
 });
 
-// GET /api/boletos/mis-boletos - boletos del usuario autenticado
-router.get('/mis-boletos', authenticate, async (req, res, next) => {
+router.get('/funcion/:funcionId', authenticate, async (req, res, next) => {
   try {
-    const boletos = await Boleto.findAll({
-      where: { UserId: req.user.id },
-      include: [{ model: Funcion, include: [{ model: Pelicula }] }]
+    const boletos = await Boleto.findAll({ 
+      where: { FuncionId: req.params.funcionId } 
     });
     res.json(boletos);
-  } catch (error) {
-    next(error);
-  }
+  } catch (error) { next(error); }
 });
 
 module.exports = router;

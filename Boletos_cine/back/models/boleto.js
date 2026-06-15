@@ -1,7 +1,7 @@
+// back/models/boleto.js
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Boleto extends Model {
     static associate(models) {
@@ -9,12 +9,17 @@ module.exports = (sequelize, DataTypes) => {
       Boleto.belongsTo(models.User);
     }
   }
-  Boleto.init({
-    asiento: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: { notEmpty: { msg: 'El asiento es requerido' } }
-    },
+  
+ Boleto.init({
+  asiento: DataTypes.STRING,
+  totalPagado: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true
+  },
+  codigoPromo: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
     FuncionId: DataTypes.INTEGER,
     UserId: DataTypes.INTEGER
   }, {
