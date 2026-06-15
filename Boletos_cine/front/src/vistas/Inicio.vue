@@ -60,6 +60,10 @@ const obtenerRutaImagen = (pelicula) => {
     return '/movies/pelicula3.jpg'
   }
 
+  if (pelicula.titulo === 'Depreador') {
+    return '/movies/pelicula3.jpg'
+  }
+
   // Respaldo dinámico por si agregas una tercera película en el futuro
   const ruta = pelicula.imagen
   if (!ruta) return '/movies/pelicula1.jpg'

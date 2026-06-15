@@ -122,11 +122,17 @@ const abrirEditar = (pelicula) => {
   mostrarFormulario.value = true
 }
 
+const imagenes = ['pelicula1.jpg', 'pelicula3.jpg', 'Pelicula2.jpeg']
+
 const crearPelicula = async () => {
   error.value = ''
   cargando.value = true
   try {
-    await api.post('/api/peliculas', form.value, authHeader)
+    const data = {
+      ...form.value,
+      imagen: imagenes[peliculas.value.length % imagenes.length]
+    }
+    await api.post('/api/peliculas', data, authHeader)
     form.value = { titulo: '', genero: '', duracion: '', sinopsis: '' }
     mostrarFormulario.value = false
     await cargarPeliculas()
