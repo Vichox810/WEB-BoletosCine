@@ -32,7 +32,6 @@ import '../styles/Auth.css'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../api'
-import { resetToken } from '../stores/resetToken'
 
 const router = useRouter()
 const password = ref('')
@@ -42,7 +41,7 @@ const sinToken = ref(false)
 const cargando = ref(false)
 
 onMounted(() => {
-  if (!resetToken.value) {
+  if (!sessionStorage.getItem('resetToken')) {
     sinToken.value = true
   }
 })
@@ -51,9 +50,10 @@ const resetear = async () => {
   error.value = ''
   exito.value = ''
   cargando.value = true
+  const token = sessionStorage.getItem('resetToken')
   try {
-    const res = await api.post('/api/users/resetear', { token: resetToken.value, password: password.value })
-    resetToken.value = ''
+    const res = await api.post('/api/users/resetear', { token, password: password.value })
+    sessionStorage.removeItem('resetToken')
     exito.value = res.data.message
     setTimeout(() => router.push('/login'), 1500)
   } catch (err) {

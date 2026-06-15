@@ -29,7 +29,6 @@ import '../styles/Auth.css'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../api'
-import { resetToken } from '../stores/resetToken'
 
 const router = useRouter()
 const email = ref('')
@@ -43,7 +42,7 @@ const solicitar = async () => {
   cargando.value = true
   try {
     const res = await api.post('/api/users/solicitar-reset', { email: email.value })
-    resetToken.value = res.data.token
+    sessionStorage.setItem('resetToken', res.data.token)
     router.push('/resetear')
   } catch (err) {
     error.value = err.response?.data?.message || err.response?.data?.error || 'Error al solicitar el restablecimiento'
