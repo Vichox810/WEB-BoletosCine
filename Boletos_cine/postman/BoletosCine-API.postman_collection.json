@@ -117,6 +117,18 @@
           }
         },
         {
+          "name": "Crear - duración no numérica (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Test\",\n  \"genero\": \"Acción\",\n  \"duracion\": \"ciento veinte\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/peliculas", "host": ["{{baseUrl}}"], "path": ["api", "peliculas"] }
+          }
+        },
+        {
           "name": "Actualizar (requiere token)",
           "request": {
             "method": "PUT",
@@ -162,6 +174,18 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "body": { "mode": "raw", "raw": "{\n  \"PeliculaId\": 1,\n  \"fecha\": \"2026-06-20\",\n  \"hora\": \"20:00\",\n  \"sala\": \"Sala 1\",\n  \"precio\": 5000\n}" },
+            "url": { "raw": "{{baseUrl}}/api/funciones", "host": ["{{baseUrl}}"], "path": ["api", "funciones"] }
+          }
+        },
+        {
+          "name": "Crear - precio no numérico (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"PeliculaId\": 1,\n  \"fecha\": \"2026-06-20\",\n  \"hora\": \"20:00\",\n  \"sala\": \"Sala 1\",\n  \"precio\": \"gratis\"\n}" },
             "url": { "raw": "{{baseUrl}}/api/funciones", "host": ["{{baseUrl}}"], "path": ["api", "funciones"] }
           }
         }
@@ -232,7 +256,7 @@
               { "key": "Content-Type", "value": "application/json" },
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"CINE10\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"FRUTILLAR\"\n}" },
             "url": { "raw": "{{baseUrl}}/api/promociones/validar", "host": ["{{baseUrl}}"], "path": ["api", "promociones", "validar"] }
           }
         },
@@ -246,6 +270,26 @@
             ],
             "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"INVALIDO\"\n}" },
             "url": { "raw": "{{baseUrl}}/api/promociones/validar", "host": ["{{baseUrl}}"], "path": ["api", "promociones", "validar"] }
+          }
+        },
+        {
+          "name": "Listar todas (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/promociones", "host": ["{{baseUrl}}"], "path": ["api", "promociones"] }
+          }
+        },
+        {
+          "name": "Crear promoción (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"NUEVA20\",\n  \"descuento\": 20,\n  \"descripcion\": \"20% de descuento\",\n  \"usosMaximos\": 50\n}" },
+            "url": { "raw": "{{baseUrl}}/api/promociones", "host": ["{{baseUrl}}"], "path": ["api", "promociones"] }
           }
         }
       ]
