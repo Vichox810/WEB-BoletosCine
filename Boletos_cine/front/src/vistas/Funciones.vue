@@ -103,9 +103,13 @@
   const authHeader = { headers: { Authorization: `Bearer ${token}` } }
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
-  const isAdmin = () => user.role === 'admin'
+   const isAdmin = () => {
+     console.log('User object from localStorage:', user);
+     console.log('Is Admin:', user.role === 'admin');
+     return user.role === 'admin';
+   }
 
-  // Modificado para soportar el envío dinámico de filtros al backend
+   // Modificado para soportar el envío dinámico de filtros al backend
   const cargarFunciones = async () => {
     try {
       cargandoLista.value = true
@@ -171,12 +175,15 @@
 
     cargando.value = true
     try {
-      await api.post('/api/funciones', form.value, authHeader)
-      form.value = { PeliculaId: '', fecha: '', hora: '', sala: '', precio: '' }
-      mostrarFormulario.value = false
-      await cargarFunciones()
+      console.log("Attempting to create function with form:", form.value);
+      console.log("Auth Header:", authHeader);
+      await api.post('/api/funciones', form.value, authHeader);
+      form.value = { PeliculaId: '', fecha: '', hora: '', sala: '', precio: '' };
+      mostrarFormulario.value = false;
+      await cargarFunciones();
     } catch (err) {
-      error.value = err.response?.data?.error || 'Error al crear función'
+      console.error("Error creating function:", err.response?.data || err);
+      error.value = err.response?.data?.error || 'Error al crear función';
     } finally {
       cargando.value = false
     }
@@ -206,17 +213,19 @@
   }
 
   const eliminarFuncion = async (id) => {
-    if (!confirm('¿Eliminar esta función?')) return
+    if (!confirm('¿Eliminar esta función?')) return;
     try {
-      await api.delete(`/api/funciones/${id}`, authHeader)
-      await cargarFunciones()
-    } catch {
-      error.value = 'Error al eliminar función'
+      console.log("Attempting to delete function with ID:", id);
+      console.log("Auth Header:", authHeader);
+      await api.delete(`/api/funciones/${id}`, authHeader);
+      await cargarFunciones();
+    } catch (err) {
+      console.error("Error deleting function:", err.response?.data || err);
+      error.value = err.response?.data?.error || 'Error al eliminar función';
     }
   }
 
   onMounted(() => {
-    cargarFunciones()
-    cargarPeliculas()
-  })
-  </script>
+    cargarFunciones();
+    cargarPeliculas();
+  });  </script>
