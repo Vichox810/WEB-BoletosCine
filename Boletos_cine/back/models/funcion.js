@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
     estado: {
       type: DataTypes.STRING,
       defaultValue: 'activa'
+    },
+    limiteAsientos: {
+      type: DataTypes.INTEGER,
+      defaultValue: 40
     }
   }, {
     sequelize,

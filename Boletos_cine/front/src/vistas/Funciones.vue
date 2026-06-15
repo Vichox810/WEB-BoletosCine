@@ -42,6 +42,7 @@
         <input v-model="form.hora" type="time" />
         <input v-model="form.sala" type="text" placeholder="Sala" />
         <input v-model="form.precio" type="number" placeholder="Precio" />
+        <input v-model="form.limiteAsientos" type="number" placeholder="Límite de asientos" v-if="editando" />
         <div class="input-grupo" v-if="editando">
           <label>Estado:</label>
           <select v-model="form.estado">
@@ -62,7 +63,7 @@
           <div class="info">
             <h3>{{ funcion.Pelicula?.titulo }}</h3>
             <p>{{ new Date(funcion.fecha).toLocaleDateString('es-CL') }} · {{ funcion.hora }}</p>
-            <p>Sala: {{ funcion.sala }} · ${{ funcion.precio }}</p>
+            <p>Sala: {{ funcion.sala }} · ${{ funcion.precio }} · {{ funcion.limiteAsientos || 40 }} asientos</p>
             <p :class="funcion.estado === 'cancelada' ? 'badge-cancelada' : 'badge-activa'">{{ funcion.estado === 'cancelada' ? 'Cancelada' : 'Activa' }}</p>
           </div>
           <div class="acciones">
@@ -92,7 +93,7 @@
   const mostrarFormulario = ref(false)
   const editando = ref(false)
   const editandoId = ref(null)
-  const form = ref({ PeliculaId: '', fecha: '', hora: '', sala: '', precio: '', estado: 'activa' })
+  const form = ref({ PeliculaId: '', fecha: '', hora: '', sala: '', precio: '', estado: 'activa', limiteAsientos: 40 })
 
   // Estados reactivos para los filtros de búsqueda (rq-07)
   const filtroPelicula = ref('')
@@ -154,7 +155,8 @@
       hora: funcion.hora,
       sala: funcion.sala,
       precio: funcion.precio,
-      estado: funcion.estado || 'activa'
+      estado: funcion.estado || 'activa',
+      limiteAsientos: funcion.limiteAsientos || 40
     }
     mostrarFormulario.value = true
   }

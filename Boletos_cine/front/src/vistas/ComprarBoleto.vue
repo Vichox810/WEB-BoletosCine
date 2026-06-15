@@ -83,11 +83,13 @@ const descuentoAplicado = ref(0)
 const mensajePromo = ref('')
 
 const BUTACAS_POR_FILA = 5
-const TOTAL_BUTACAS = 40
-const filas = Array.from({ length: TOTAL_BUTACAS / BUTACAS_POR_FILA }, (_, i) => ({
-  index: i,
-  asientos: Array.from({ length: BUTACAS_POR_FILA }, (_, j) => i * BUTACAS_POR_FILA + j + 1)
-}))
+const filas = computed(() => {
+  const total = funcion.value?.limiteAsientos || 40
+  return Array.from({ length: total / BUTACAS_POR_FILA }, (_, i) => ({
+    index: i,
+    asientos: Array.from({ length: BUTACAS_POR_FILA }, (_, j) => i * BUTACAS_POR_FILA + j + 1)
+  }))
+})
 
 const seleccionarAsiento = (n) => {
   if (ocupados.value.includes(String(n))) return

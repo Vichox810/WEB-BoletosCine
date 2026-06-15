@@ -54,14 +54,14 @@ router.get('/pelicula/:peliculaId', async (req, res, next) => {
 });
 
 // POST crear función - PROTEGIDA
-router.post('/', authenticate, validateFields(['fecha', 'hora', 'sala', 'precio', 'PeliculaId']), validateTypes({ precio: 'number' }), async (req, res, next) => {
+router.post('/', authenticate, validateFields(['fecha', 'hora', 'sala', 'precio', 'PeliculaId']), validateTypes({ precio: 'number', limiteAsientos: 'number' }), async (req, res, next) => {
   try {
-    const { fecha, hora, sala, precio, PeliculaId, estado } = req.body;
+    const { fecha, hora, sala, precio, PeliculaId, estado, limiteAsientos } = req.body;
     const pelicula = await Pelicula.findByPk(PeliculaId);
     if (!pelicula) {
       return res.status(404).json({ error: true, message: 'Película no encontrada' });
     }
-    const funcion = await Funcion.create({ fecha, hora, sala, precio, PeliculaId, estado });
+    const funcion = await Funcion.create({ fecha, hora, sala, precio, PeliculaId, estado, limiteAsientos });
     res.status(201).json(funcion);
   } catch (error) {
     next(error);
@@ -69,13 +69,13 @@ router.post('/', authenticate, validateFields(['fecha', 'hora', 'sala', 'precio'
 });
 
 // PUT actualizar función - PROTEGIDA
-router.put('/:id', authenticate, validateTypes({ precio: 'number' }), async (req, res, next) => {
+router.put('/:id', authenticate, validateTypes({ precio: 'number', limiteAsientos: 'number' }), async (req, res, next) => {
   try {
     const funcion = await Funcion.findByPk(req.params.id);
     if (!funcion) {
       return res.status(404).json({ error: true, message: 'Función no encontrada' });
     }
-    const { fecha, hora, sala, precio, PeliculaId, estado } = req.body;
+    const { fecha, hora, sala, precio, PeliculaId, estado, limiteAsientos } = req.body;
     if (PeliculaId) {
       const pelicula = await Pelicula.findByPk(PeliculaId);
       if (!pelicula) {
@@ -88,7 +88,8 @@ router.put('/:id', authenticate, validateTypes({ precio: 'number' }), async (req
       sala: sala || funcion.sala,
       precio: precio || funcion.precio,
       PeliculaId: PeliculaId || funcion.PeliculaId,
-      estado: estado || funcion.estado
+      estado: estado || funcion.estado,
+      limiteAsientos: limiteAsientos !== undefined ? limiteAsientos : funcion.limiteAsientos
     });
     res.json(funcion);
   } catch (error) {
