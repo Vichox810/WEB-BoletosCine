@@ -106,23 +106,16 @@ const cargarDatos = async () => {
   }
 
   try {
-    const token = localStorage.getItem('token')
-    const authHeader = { headers: { Authorization: `Bearer ${token}` } }
-
     const [f, o] = await Promise.all([
       api.get(`/api/funciones/${idLimpio}`),
-      api.get(`/api/boletos/funcion/${idLimpio}`, authHeader)
+      api.get(`/api/boletos/funcion/${idLimpio}`)
     ])
 
     funcion.value = f.data
     ocupados.value = o.data.map(b => String(b.asiento))
   } catch (err) {
     console.error('Error al cargar:', err)
-    if (err.response?.status === 401) {
-      router.push('/login')
-    } else {
-      error.value = err.response?.data?.error || err.message
-    }
+    error.value = err.response?.data?.error || err.message
   }
 }
 

@@ -14,9 +14,13 @@
         <router-link v-if="isAdmin()" to="/dashboard" class="nav-item">Dashboard</router-link>
       </div>
 
-      <div class="navbar-user">
+      <div class="navbar-user" v-if="estaLogeado">
         <span class="user-name">👋 Hola, {{ user.name || 'Usuario' }}</span>
         <button class="btn-logout" @click="cerrarSesion">Salir</button>
+      </div>
+      <div class="navbar-user" v-else>
+        <router-link to="/login" class="btn-login">Iniciar Sesión</router-link>
+        <router-link to="/registro" class="btn-register">Registrarse</router-link>
       </div>
     </nav>
 
@@ -28,17 +32,19 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
 
 const user = ref({})
+const estaLogeado = ref(false)
 
 // Cargar los datos del usuario local
 const actualizarUsuario = () => {
   user.value = JSON.parse(localStorage.getItem('user') || '{}')
+  estaLogeado.value = !!localStorage.getItem('token')
 }
 
 // Saber si el usuario es administrador
@@ -177,6 +183,38 @@ body {
   background: #ff4757;
   color: white;
   box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+}
+
+.btn-login, .btn-register {
+  color: #e2e8f0;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.btn-login {
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid rgba(255, 71, 87, 0.2);
+  color: #ff4757;
+}
+
+.btn-login:hover {
+  background: #ff4757;
+  color: white;
+}
+
+.btn-register {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+}
+
+.btn-register:hover {
+  background: #6366f1;
+  color: white;
 }
 
 .main-content {

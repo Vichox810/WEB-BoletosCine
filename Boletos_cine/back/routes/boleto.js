@@ -76,7 +76,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
   }
 });
 
-router.get('/funcion/:funcionId', authenticate, async (req, res, next) => {
+router.get('/funcion/:funcionId', async (req, res, next) => {
   try {
     const boletos = await Boleto.findAll({ 
       where: { FuncionId: req.params.funcionId } 

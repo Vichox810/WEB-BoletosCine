@@ -88,8 +88,8 @@ router.beforeEach((to) => {
   const token = localStorage.getItem('token');
   
   // Lista de rutas a las que cualquiera puede entrar sin loguearse
-  const rutasPublicas = ['/login', '/registro', '/solicitar-reset', '/resetear'];
-  const esRutaPublica = rutasPublicas.includes(to.path);
+  const rutasPublicas = ['/', '/login', '/registro', '/solicitar-reset', '/resetear', '/funciones', '/peliculas'];
+  const esRutaPublica = rutasPublicas.includes(to.path) || to.path.startsWith('/comprar/') || to.path.startsWith('/boleta/');
 
   // Si no está autenticado y quiere ir a una ruta privada, lo mandamos al Login de cabeza
   if (!token && !esRutaPublica) {
@@ -97,7 +97,7 @@ router.beforeEach((to) => {
   }
 
   // Si ya está autenticado e intenta volver a las pantallas de login/registro, lo mandamos al inicio
-  if (token && rutasPublicas.includes(to.path)) {
+  if (token && ['/login', '/registro'].includes(to.path)) {
     return '/';
   }
   
