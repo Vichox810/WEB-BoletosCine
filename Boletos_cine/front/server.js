@@ -14,6 +14,8 @@ const MIME = {
   '.woff': 'font/woff', '.woff2': 'font/woff2',
 }
 
+const API_URL = process.env.VITE_API_URL || 'https://backend-api-production-1d2f.up.railway.app'
+
 createServer((req, res) => {
   const filePath = req.url === '/' ? join(DIST, 'index.html') : join(DIST, req.url)
   if (existsSync(filePath)) {
@@ -21,8 +23,12 @@ createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' })
     res.end(readFileSync(filePath))
   } else {
+    let html = readFileSync(join(DIST, 'index.html'), 'utf-8')
+    if (req.url === '/' || req.url.startsWith('/login') || req.url.startsWith('/registro') || req.url.startsWith('/solicitar-reset') || req.url.startsWith('/resetear')) {
+      html = html.replace('</head>', `<script>window.__API_URL__="${API_URL}"</script></head>`)
+    }
     res.writeHead(200, { 'Content-Type': 'text/html' })
-    res.end(readFileSync(join(DIST, 'index.html')))
+    res.end(html)
   }
 }).listen(PORT, () => {
   console.log(`Frontend sirviendo en http://localhost:${PORT}`)
