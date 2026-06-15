@@ -60,7 +60,7 @@ const obtenerRutaImagen = (pelicula) => {
     return '/movies/pelicula3.jpg'
   }
 
-  if (pelicula.titulo === 'Depreador') {
+  if (pelicula.titulo === 'Depredador') {
     return '/movies/pelicula3.jpg'
   }
 

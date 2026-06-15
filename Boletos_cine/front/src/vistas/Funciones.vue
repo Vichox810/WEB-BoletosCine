@@ -42,6 +42,13 @@
         <input v-model="form.hora" type="time" />
         <input v-model="form.sala" type="text" placeholder="Sala" />
         <input v-model="form.precio" type="number" placeholder="Precio" />
+        <div class="input-grupo" v-if="editando">
+          <label>Estado:</label>
+          <select v-model="form.estado">
+            <option value="activa">Activa</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+        </div>
         <button @click="editando ? actualizarFuncion() : crearFuncion()" :disabled="cargando">
           {{ cargando ? 'Guardando...' : 'Guardar' }}
         </button>
@@ -56,7 +63,7 @@
             <h3>{{ funcion.Pelicula?.titulo }}</h3>
             <p>{{ new Date(funcion.fecha).toLocaleDateString('es-CL') }} · {{ funcion.hora }}</p>
             <p>Sala: {{ funcion.sala }} · ${{ funcion.precio }}</p>
-            <p v-if="funcion.estado === 'cancelada'" class="badge-cancelada">Cancelada</p>
+            <p :class="funcion.estado === 'cancelada' ? 'badge-cancelada' : 'badge-activa'">{{ funcion.estado === 'cancelada' ? 'Cancelada' : 'Activa' }}</p>
           </div>
           <div class="acciones">
             <button class="btn-comprar" @click="router.push(`/comprar/${funcion.id}`)">Comprar</button>
@@ -85,7 +92,7 @@
   const mostrarFormulario = ref(false)
   const editando = ref(false)
   const editandoId = ref(null)
-  const form = ref({ PeliculaId: '', fecha: '', hora: '', sala: '', precio: '' })
+  const form = ref({ PeliculaId: '', fecha: '', hora: '', sala: '', precio: '', estado: 'activa' })
 
   // Estados reactivos para los filtros de búsqueda (rq-07)
   const filtroPelicula = ref('')
@@ -146,7 +153,8 @@
       fecha: funcion.fecha?.split('T')[0],
       hora: funcion.hora,
       sala: funcion.sala,
-      precio: funcion.precio
+      precio: funcion.precio,
+      estado: funcion.estado || 'activa'
     }
     mostrarFormulario.value = true
   }
