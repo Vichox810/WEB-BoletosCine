@@ -51,7 +51,7 @@ const irACartelera = () => {
 const obtenerRutaImagen = (pelicula) => {
   
   // 1. Condición para Backrooms 2
-  if (pelicula.titulo === 'Backrooms 2') {
+  if (pelicula.titulo === 'Backrooms') {
     return '/movies/pelicula1.jpg'
   }
 
