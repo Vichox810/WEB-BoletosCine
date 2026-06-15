@@ -88,6 +88,37 @@
         </div>
         <button class="btn-ver-todos" @click="router.push('/funciones')">Ver todas las funciones</button>
       </div>
+
+      <!-- Promociones -->
+      <div class="section">
+        <h2> Promociones activas</h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Descuento</th>
+                <th>Descripción</th>
+                <th>Usos</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="promo in promociones" :key="promo.id">
+                <td><strong>{{ promo.codigo }}</strong></td>
+                <td>{{ promo.descuento }}%</td>
+                <td>{{ promo.descripcion }}</td>
+                <td>{{ promo.usosActuales }}/{{ promo.usosMaximos }}</td>
+                <td>
+                  <span :class="promo.activa ? 'badge-activa' : 'badge-inactiva'">
+                    {{ promo.activa ? 'Activa' : 'Inactiva' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -105,6 +136,7 @@ const authHeader = { headers: { Authorization: `Bearer ${token}` } }
 const stats = ref({ usuarios: 0, peliculas: 0, funciones: 0 })
 const ultimosUsuarios = ref([])
 const ultimasFunciones = ref([])
+const promociones = ref([])
 
 // Dejamos la función logout intacta por si la necesitas referenciar desde otro componente, aunque ya no se use en este HTML
 const logout = () => {
@@ -115,10 +147,11 @@ const logout = () => {
 
 onMounted(async () => {
   try {
-    const [usersRes, peliculasRes, funcionesRes] = await Promise.all([
+    const [usersRes, peliculasRes, funcionesRes, promocionesRes] = await Promise.all([
       api.get('/api/users', authHeader),
       api.get('/api/peliculas'),
-      api.get('/api/funciones')
+      api.get('/api/funciones'),
+      api.get('/api/promociones', authHeader).catch(() => null)
     ])
 
     stats.value = {
@@ -129,6 +162,7 @@ onMounted(async () => {
 
     ultimosUsuarios.value = usersRes.data.slice(-5).reverse()
     ultimasFunciones.value = funcionesRes.data.slice(-5).reverse()
+    if (promocionesRes) promociones.value = promocionesRes.data
   } catch (err) {
     console.error('Error al cargar dashboard:', err)
   }
