@@ -42,6 +42,17 @@ const router = useRouter()
 
 const login = async () => {
   error.value = ''
+
+  if (!form.value.email.trim() || !form.value.password.trim()) {
+    error.value = 'Todos los campos son requeridos'
+    return
+  }
+
+  if (!/\S+@\S+\.\S+/.test(form.value.email)) {
+    error.value = 'Ingresa un correo electrónico válido'
+    return
+  }
+
   cargando.value = true
   try {
     const res = await api.post('/api/users/login', form.value)

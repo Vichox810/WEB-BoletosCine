@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const authenticate = require('../middlewares/authenticate');
+const requireAdmin = require('../middlewares/requireAdmin');
 const { User, PasswordResetToken } = require('../models');
 const crypto = require('crypto');
 const { validateFields, validateEmail } = require('../middlewares/validate');
@@ -68,11 +69,8 @@ router.post('/login', validateFields(['email', 'password']), async (req, res, ne
 });
 
 // GET /api/users - solo admins
-router.get('/', authenticate, async (req, res, next) => {
+router.get('/', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: true, message: 'Acceso denegado' })
-    }
     const users = await User.findAll({
       attributes: { exclude: ['password'] }
     })
@@ -83,13 +81,9 @@ router.get('/', authenticate, async (req, res, next) => {
 })
 
 // POST /api/users/solicitar-reset
-router.post('/solicitar-reset', async (req, res, next) => {
+router.post('/solicitar-reset', validateFields(['email']), async (req, res, next) => {
   try {
     const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ error: true, message: 'El email es requerido' });
-    }
 
     const user = await User.findOne({ where: { email } });
     if (!user) {

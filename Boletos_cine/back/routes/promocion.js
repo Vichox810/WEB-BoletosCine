@@ -2,14 +2,12 @@ const express = require('express');
 const router = express.Router();
 const { Promocion } = require('../models');
 const authenticate = require('../middlewares/authenticate');
-const { validateFields } = require('../middlewares/validate');
+const requireAdmin = require('../middlewares/requireAdmin');
+const { validateFields, validateTypes } = require('../middlewares/validate');
 
 // GET todas las promociones - solo admin
-router.get('/', authenticate, async (req, res, next) => {
+router.get('/', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: true, message: 'Acceso denegado' });
-    }
     const promociones = await Promocion.findAll({ order: [['createdAt', 'DESC']] });
     res.json(promociones);
   } catch (error) {
@@ -18,11 +16,8 @@ router.get('/', authenticate, async (req, res, next) => {
 });
 
 // POST crear promoción - solo admin
-router.post('/', authenticate, validateFields(['codigo', 'descuento']), async (req, res, next) => {
+router.post('/', authenticate, requireAdmin, validateFields(['codigo', 'descuento']), validateTypes({ descuento: 'number', usosMaximos: 'number' }), async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: true, message: 'Acceso denegado' });
-    }
     const { codigo, descuento, descripcion, expiresAt, usosMaximos } = req.body;
     const promocion = await Promocion.create({
       codigo: codigo.toUpperCase(),
@@ -37,7 +32,7 @@ router.post('/', authenticate, validateFields(['codigo', 'descuento']), async (r
   }
 });
 
-// POST /api/promociones/validar - validar código promocional
+// POST /api/promociones/validar - validar código promocional (cualquier usuario autenticado)
 router.post('/validar', authenticate, validateFields(['codigo']), async (req, res, next) => {
   try {
     const { codigo } = req.body;
@@ -72,11 +67,8 @@ router.post('/validar', authenticate, validateFields(['codigo']), async (req, re
 });
 
 // DELETE eliminar promoción - solo admin
-router.delete('/:id', authenticate, async (req, res, next) => {
+router.delete('/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: true, message: 'Acceso denegado' });
-    }
     const promocion = await Promocion.findByPk(req.params.id);
     if (!promocion) {
       return res.status(404).json({ error: true, message: 'Promoción no encontrada' });

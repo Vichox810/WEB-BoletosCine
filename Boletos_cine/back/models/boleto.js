@@ -11,17 +11,41 @@ module.exports = (sequelize, DataTypes) => {
   }
   
  Boleto.init({
-  asiento: DataTypes.STRING,
+  asiento: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: 'El asiento es requerido' },
+      is: { args: /^\d+$/, msg: 'El asiento debe ser un número' }
+    }
+  },
   totalPagado: {
     type: DataTypes.DECIMAL(10, 2),
-    allowNull: true
+    allowNull: true,
+    validate: {
+      min: { args: [0], msg: 'El total pagado no puede ser negativo' }
+    }
   },
   codigoPromo: {
     type: DataTypes.STRING,
     allowNull: true
   },
-    FuncionId: DataTypes.INTEGER,
-    UserId: DataTypes.INTEGER
+    FuncionId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isInt: { msg: 'ID de función inválido' },
+        min: { args: [1], msg: 'ID de función inválido' }
+      }
+    },
+    UserId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isInt: { msg: 'ID de usuario inválido' },
+        min: { args: [1], msg: 'ID de usuario inválido' }
+      }
+    }
   }, {
     sequelize,
     modelName: 'Boleto',

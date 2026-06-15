@@ -163,6 +163,12 @@
 
   const crearFuncion = async () => {
     error.value = ''
+
+    if (!form.value.PeliculaId || !form.value.fecha || !form.value.hora || !form.value.sala.trim() || !form.value.precio) {
+      error.value = 'Todos los campos son requeridos'
+      return
+    }
+
     cargando.value = true
     try {
       await api.post('/api/funciones', form.value, authHeader)
@@ -178,6 +184,12 @@
 
   const actualizarFuncion = async () => {
     error.value = ''
+
+    if (!form.value.PeliculaId || !form.value.fecha || !form.value.hora || !form.value.sala.trim() || !form.value.precio) {
+      error.value = 'Todos los campos son requeridos'
+      return
+    }
+
     cargando.value = true
     try {
       await api.put(`/api/funciones/${editandoId.value}`, form.value, authHeader)

@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { sequelize, User, Promocion } = require('./models');
 const peliculaRoutes = require('./routes/pelicula');
 const funcionRoutes = require('./routes/funcion');
@@ -12,8 +14,28 @@ const promocionRoutes = require('./routes/promocion');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(helmet());
+
+const corsOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map(s => s.trim())
+  : ['http://localhost:5173', 'http://localhost:8080']
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? corsOrigins : '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: true, message: 'Demasiados intentos. Intenta de nuevo en 15 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+app.use('/api/users/login', loginLimiter)
 
 // Rutas
 app.use('/api/peliculas', peliculaRoutes);

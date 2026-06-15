@@ -49,6 +49,12 @@ onMounted(() => {
 const resetear = async () => {
   error.value = ''
   exito.value = ''
+
+  if (password.value.length < 8) {
+    error.value = 'La contraseña debe tener al menos 8 caracteres'
+    return
+  }
+
   cargando.value = true
   const token = sessionStorage.getItem('resetToken')
   try {

@@ -126,6 +126,12 @@ const imagenes = ['pelicula1.jpg', 'pelicula3.jpg', 'Pelicula2.jpeg']
 
 const crearPelicula = async () => {
   error.value = ''
+
+  if (!form.value.titulo.trim() || !form.value.genero.trim() || !form.value.duracion) {
+    error.value = 'Todos los campos son requeridos'
+    return
+  }
+
   cargando.value = true
   try {
     const data = {
@@ -145,6 +151,12 @@ const crearPelicula = async () => {
 
 const actualizarPelicula = async () => {
   error.value = ''
+
+  if (!form.value.titulo.trim() || !form.value.genero.trim() || !form.value.duracion) {
+    error.value = 'Todos los campos son requeridos'
+    return
+  }
+
   cargando.value = true
   try {
     await api.put(`/api/peliculas/${editandoId.value}`, form.value, authHeader)

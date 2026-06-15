@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Funcion, Pelicula } = require('../models');
 const authenticate = require('../middlewares/authenticate');
+const requireAdmin = require('../middlewares/requireAdmin');
 const { validateFields, validateTypes } = require('../middlewares/validate');
 
 // GET todas las funciones - PÚBLICA (Soporta query params de filtrado)
@@ -53,8 +54,8 @@ router.get('/pelicula/:peliculaId', async (req, res, next) => {
   }
 });
 
-// POST crear función - PROTEGIDA
-router.post('/', authenticate, validateFields(['fecha', 'hora', 'sala', 'precio', 'PeliculaId']), validateTypes({ precio: 'number', limiteAsientos: 'number' }), async (req, res, next) => {
+// POST crear función - PROTEGIDA (solo admin)
+router.post('/', authenticate, requireAdmin, validateFields(['fecha', 'hora', 'sala', 'precio', 'PeliculaId']), validateTypes({ precio: 'number', limiteAsientos: 'number' }), async (req, res, next) => {
   try {
     const { fecha, hora, sala, precio, PeliculaId, estado, limiteAsientos } = req.body;
     const pelicula = await Pelicula.findByPk(PeliculaId);
@@ -97,8 +98,8 @@ router.put('/:id', authenticate, validateTypes({ precio: 'number', limiteAsiento
   }
 });
 
-// DELETE eliminar función - PROTEGIDA
-router.delete('/:id', authenticate, async (req, res, next) => {
+// DELETE eliminar función - PROTEGIDA (solo admin)
+router.delete('/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
     const funcion = await Funcion.findByPk(req.params.id);
     if (!funcion) {

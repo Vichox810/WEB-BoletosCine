@@ -2,12 +2,17 @@ const express = require('express');
 const router = express.Router();
 const { Boleto, Funcion, Pelicula, Promocion } = require('../models');
 const authenticate = require('../middlewares/authenticate');
-const { validateFields } = require('../middlewares/validate');
+const { validateFields, validateTypes } = require('../middlewares/validate');
 
 // POST /api/boletos - comprar boleto
-router.post('/', authenticate, validateFields(['FuncionId', 'asiento']), async (req, res, next) => {
+router.post('/', authenticate, validateFields(['FuncionId', 'asiento']), validateTypes({ totalPagado: 'number' }), async (req, res, next) => {
   try {
     const { FuncionId, asiento, totalPagado, codigoPromo } = req.body;
+
+    const asientoNum = Number(asiento);
+    if (!Number.isInteger(asientoNum) || asientoNum < 1) {
+      return res.status(422).json({ error: true, message: 'El asiento debe ser un número válido mayor a 0' });
+    }
 
     const funcion = await Funcion.findByPk(FuncionId);
     if (!funcion) {
@@ -16,6 +21,11 @@ router.post('/', authenticate, validateFields(['FuncionId', 'asiento']), async (
 
     if (funcion.estado === 'cancelada') {
       return res.status(409).json({ error: true, message: 'No puedes comprar en una función cancelada' });
+    }
+
+    const limite = funcion.limiteAsientos || 40;
+    if (asientoNum > limite) {
+      return res.status(422).json({ error: true, message: `El asiento debe estar entre 1 y ${limite}` });
     }
 
     const ahora = new Date();
@@ -34,13 +44,17 @@ router.post('/', authenticate, validateFields(['FuncionId', 'asiento']), async (
 
     if (codigoPromo) {
       const promo = await Promocion.findOne({ where: { codigo: codigoPromo.toUpperCase() } });
-      if (promo) {
-        await promo.increment('usosActuales');
+      if (!promo || !promo.activa) {
+        return res.status(400).json({ error: true, message: 'Código promocional no válido' });
       }
+      if (promo.usosActuales >= promo.usosMaximos) {
+        return res.status(400).json({ error: true, message: 'El código promocional ya no tiene usos disponibles' });
+      }
+      await promo.increment('usosActuales');
     }
 
     const boleto = await Boleto.create({
-      asiento: String(asiento),
+      asiento: String(asientoNum),
       FuncionId: FuncionId,
       UserId: req.user.id,
       totalPagado: totalPagado || 0,
@@ -56,7 +70,7 @@ router.post('/', authenticate, validateFields(['FuncionId', 'asiento']), async (
   }
 });
 
-// GET /api/boletos/:id - ver detalle
+// GET /api/boletos/:id - ver detalle (solo el dueño o admin)
 router.get('/:id', authenticate, async (req, res, next) => {
   try {
     const boleto = await Boleto.findByPk(req.params.id, {
@@ -68,6 +82,10 @@ router.get('/:id', authenticate, async (req, res, next) => {
 
     if (!boleto) {
       return res.status(404).json({ error: true, message: 'Boleto no encontrado' });
+    }
+
+    if (req.user.role !== 'admin' && boleto.UserId !== req.user.id) {
+      return res.status(403).json({ error: true, message: 'No tienes permiso para ver este boleto' });
     }
 
     return res.json(boleto.toJSON());

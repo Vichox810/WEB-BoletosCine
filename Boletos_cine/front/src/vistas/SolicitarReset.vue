@@ -39,6 +39,17 @@ const cargando = ref(false)
 const solicitar = async () => {
   error.value = ''
   exito.value = ''
+
+  if (!email.value.trim()) {
+    error.value = 'Ingresa tu correo electrónico'
+    return
+  }
+
+  if (!/\S+@\S+\.\S+/.test(email.value)) {
+    error.value = 'Ingresa un correo electrónico válido'
+    return
+  }
+
   cargando.value = true
   try {
     const res = await api.post('/api/users/solicitar-reset', { email: email.value })

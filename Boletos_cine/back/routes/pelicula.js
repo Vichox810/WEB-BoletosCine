@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Pelicula, Funcion } = require('../models');
 const authenticate = require('../middlewares/authenticate');
+const requireAdmin = require('../middlewares/requireAdmin');
 const { validateFields, validateTypes } = require('../middlewares/validate');
 
 // GET todas las películas - PÚBLICA
@@ -63,8 +64,8 @@ router.put('/:id', authenticate, validateTypes({ duracion: 'number' }), async (r
   }
 });
 
-// DELETE eliminar película - PROTEGIDA
-router.delete('/:id', authenticate, async (req, res, next) => {
+// DELETE eliminar película - PROTEGIDA (solo admin)
+router.delete('/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
     const pelicula = await Pelicula.findByPk(req.params.id);
     if (!pelicula) {
