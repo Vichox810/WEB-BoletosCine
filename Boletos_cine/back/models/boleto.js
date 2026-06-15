@@ -10,8 +10,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   
- Boleto.init({
-  asiento: {
+  Boleto.init({
+    grupoCompra: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    asiento: {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {

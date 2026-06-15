@@ -72,7 +72,12 @@ const routes = [
   },
 
   {
-    path: '/boleta/:id', // <--- AGREGAR ESTO
+    path: '/boleta/grupo/:grupoCompra',
+    name: 'BoletaGrupo',
+    component: Boleta
+  },
+  {
+    path: '/boleta/:id',
     name: 'Boleta',
     component: Boleta
   }

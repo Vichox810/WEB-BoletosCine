@@ -5,7 +5,7 @@ const authenticate = (req, res, next) => {
   const token = authHeader && authHeader.split(' ')[1] // Bearer TOKEN
 
   if (!token) {
-    return res.status(401).json({ error: 'Token requerido' })
+    return res.status(401).json({ error: 'Debes iniciar sesión para realizar esta acción' })
   }
 
   try {
@@ -13,7 +13,7 @@ const authenticate = (req, res, next) => {
     req.user = decoded
     next()
   } catch (error) {
-    return res.status(401).json({ error: 'Token inválido o expirado' })
+    return res.status(401).json({ error: 'Sesión inválida o expirada. Inicia sesión nuevamente.' })
   }
 }
 

@@ -15,6 +15,10 @@
         Sala {{ funcion.sala }} · ${{ funcion.precio }} por asiento
       </p>
 
+      <p class="seleccion-info" v-if="asientosSeleccionados.length > 0">
+        Asientos seleccionados: <strong>{{ asientosSeleccionados.sort((a, b) => a - b).join(', ') }}</strong>
+      </p>
+
       <div class="pantalla">Pantalla</div>
 
       <div class="sala">
@@ -24,19 +28,19 @@
             :key="asiento"
             :class="[
               'asiento',
-              { seleccionado: asientoSeleccionado === asiento,
+              { seleccionado: asientosSeleccionados.includes(asiento),
                 ocupado: ocupados.includes(String(asiento)) }
             ]"
             :disabled="ocupados.includes(String(asiento))"
-            @click="seleccionarAsiento(asiento)"
+            @click="toggleAsiento(asiento)"
           >
             {{ asiento }}
           </button>
         </div>
       </div>
 
-      <div v-if="asientoSeleccionado" class="resumen">
-        <p>Asiento seleccionado: <strong>{{ asientoSeleccionado }}</strong></p>
+      <div v-if="asientosSeleccionados.length > 0" class="resumen">
+        <p>{{ asientosSeleccionados.length }} asiento(s) seleccionado(s)</p>
 
         <div class="promo-section">
           <input v-model="codigoPromo" placeholder="Código promocional" class="input-promo"
@@ -48,15 +52,16 @@
         </div>
         <p v-if="mensajePromo" :class="promoValido ? 'promo-ok' : 'promo-error'">{{ mensajePromo }}</p>
 
-        <p v-if="precioFinal < funcion.precio">
-          Subtotal: <strong>${{ funcion.precio }}</strong><br />
-          Descuento: <strong class="descuento">-{{ descuentoAplicado }}%</strong><br />
+        <p>
+          Subtotal: <strong>${{ subtotal }}</strong><br />
+          <span v-if="descuentoAplicado > 0">
+            Descuento: <strong class="descuento">-{{ descuentoAplicado }}%</strong><br />
+          </span>
           Total: <strong class="total-final">${{ precioFinal }}</strong>
         </p>
-        <p v-else>Total: <strong>${{ funcion.precio }}</strong></p>
 
-        <button class="btn-confirmar" :disabled="comprando" @click="comprarBoleto">
-          {{ comprando ? 'Procesando...' : 'Confirmar compra' }}
+        <button class="btn-confirmar" :disabled="comprando" @click="comprarBoletos">
+          {{ comprando ? 'Procesando...' : `Comprar ${asientosSeleccionados.length} asiento(s) por $${precioFinal}` }}
         </button>
       </div>
     </div>
@@ -74,7 +79,7 @@ const router = useRouter()
 const funcion = ref(null)
 const ocupados = ref([])
 const error = ref(null)
-const asientoSeleccionado = ref(null)
+const asientosSeleccionados = ref([])
 const comprando = ref(false)
 const codigoPromo = ref('')
 const validandoPromo = ref(false)
@@ -91,10 +96,26 @@ const filas = computed(() => {
   }))
 })
 
-const seleccionarAsiento = (n) => {
+const toggleAsiento = (n) => {
   if (ocupados.value.includes(String(n))) return
-  asientoSeleccionado.value = asientoSeleccionado.value === n ? null : n
+  const idx = asientosSeleccionados.value.indexOf(n)
+  if (idx === -1) {
+    asientosSeleccionados.value = [...asientosSeleccionados.value, n]
+  } else {
+    asientosSeleccionados.value = asientosSeleccionados.value.filter(a => a !== n)
+  }
 }
+
+const subtotal = computed(() => {
+  if (!funcion.value) return 0
+  return Number(funcion.value.precio) * asientosSeleccionados.value.length
+})
+
+const precioFinal = computed(() => {
+  return descuentoAplicado.value > 0
+    ? Math.round(subtotal.value * (1 - descuentoAplicado.value / 100))
+    : subtotal.value
+})
 
 const cargarDatos = async () => {
   const idRaw = route.params.id
@@ -118,14 +139,6 @@ const cargarDatos = async () => {
     error.value = err.response?.data?.error || err.message
   }
 }
-
-const precioFinal = computed(() => {
-  if (!funcion.value) return 0
-  const precio = Number(funcion.value.precio)
-  return descuentoAplicado.value > 0
-    ? Math.round(precio * (1 - descuentoAplicado.value / 100))
-    : precio
-})
 
 const validarPromo = async () => {
   if (!codigoPromo.value.trim()) return
@@ -159,29 +172,33 @@ const removerPromo = () => {
   mensajePromo.value = ''
 }
 
-const comprarBoleto = async () => {
-  if (!asientoSeleccionado.value || !funcion.value) return
+const comprarBoletos = async () => {
+  if (asientosSeleccionados.value.length === 0 || !funcion.value) return
+
+  const token = localStorage.getItem('token')
+  if (!token) {
+    router.push('/login')
+    return
+  }
+
   comprando.value = true
   try {
-    const token = localStorage.getItem('token')
-    const res = await api.post('/api/boletos', {
+    const res = await api.post('/api/boletos/comprar-multiple', {
       FuncionId: funcion.value.id,
-      asiento: String(asientoSeleccionado.value),
-      totalPagado: precioFinal.value,
+      asientos: asientosSeleccionados.value,
       codigoPromo: promoValido.value ? codigoPromo.value : undefined
     }, {
       headers: { Authorization: `Bearer ${token}` }
     })
-    router.push(`/boleta/${res.data.id}`)
+    router.push(`/boleta/grupo/${res.data.grupoCompra}`)
   } catch (err) {
     if (err.response?.status === 409) {
-      error.value = 'Este asiento ya fue ocupado. Selecciona otro.'
-      ocupados.value.push(String(asientoSeleccionado.value))
-      asientoSeleccionado.value = null
+      const msg = err.response?.data?.message || 'Algunos asientos ya están ocupados'
+      error.value = msg
     } else if (err.response?.status === 401) {
       router.push('/login')
     } else {
-      error.value = err.response?.data?.message || 'Error al comprar el boleto'
+      error.value = err.response?.data?.message || 'Error al comprar los boletos'
     }
   } finally {
     comprando.value = false
