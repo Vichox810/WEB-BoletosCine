@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 const { Op } = require('sequelize');
-const { Boleto, Funcion, Pelicula, Promocion } = require('../models');
+const { Boleto, Funcion, Pelicula, Promocion, User, sequelize } = require('../models');
 const authenticate = require('../middlewares/authenticate');
+const requireAdmin = require('../middlewares/requireAdmin');
 const { validateFields, validateTypes } = require('../middlewares/validate');
 
 // POST /api/boletos - comprar 1 boleto
@@ -158,6 +159,53 @@ router.get('/grupo/:grupoCompra', async (req, res, next) => {
     }
 
     return res.json({ grupoCompra: req.params.grupoCompra, boletos });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/boletos/admin/stats - estadísticas para el dashboard (admin)
+router.get('/admin/stats', authenticate, requireAdmin, async (req, res, next) => {
+  try {
+    const totalBoletos = await Boleto.count();
+    const ingresos = await Boleto.sum('totalPagado');
+    const boletosPorPelicula = await Boleto.findAll({
+      attributes: [
+        [sequelize.col('Funcion.Pelicula.titulo'), 'pelicula'],
+        [sequelize.fn('COUNT', sequelize.col('Boleto.id')), 'total'],
+        [sequelize.fn('SUM', sequelize.col('Boleto.totalPagado')), 'ingresos']
+      ],
+      include: [{
+        model: Funcion,
+        include: [{ model: Pelicula, attributes: [] }],
+        attributes: []
+      }],
+      group: ['Funcion.PeliculaId', 'Funcion->Pelicula.titulo'],
+      raw: true
+    });
+
+    res.json({
+      totalBoletos,
+      ingresosTotales: ingresos || 0,
+      boletosPorPelicula
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/boletos/admin/ventas - últimas ventas (admin)
+router.get('/admin/ventas', authenticate, requireAdmin, async (req, res, next) => {
+  try {
+    const boletos = await Boleto.findAll({
+      include: [
+        { model: User, attributes: ['id', 'name', 'email'] },
+        { model: Funcion, include: [{ model: Pelicula }] }
+      ],
+      order: [['createdAt', 'DESC']],
+      limit: 50
+    });
+    res.json(boletos);
   } catch (error) {
     next(error);
   }

@@ -93,3 +93,10 @@ th { color: #888; font-weight: 500; font-size: 0.9em; }
 }
 
 .btn-ver-todos:hover { background-color: #646cff; color: white; }
+
+.loading-tabla {
+  padding: 20px;
+  text-align: center;
+  color: #94a3b8;
+  font-style: italic;
+}
