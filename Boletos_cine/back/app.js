@@ -34,6 +34,12 @@ const start = async () => {
     await sequelize.authenticate();
     console.log('Conexión a BD establecida correctamente.');
 
+    // Sincronizar modelos en producción (crea tablas si no existen)
+    if (process.env.NODE_ENV === 'production') {
+      await sequelize.sync();
+      console.log('Tablas sincronizadas correctamente.');
+    }
+
     app.listen(PORT, () => {
       console.log(`Servidor corriendo en http://localhost:${PORT}`);
     });
