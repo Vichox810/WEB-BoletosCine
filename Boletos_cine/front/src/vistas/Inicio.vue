@@ -61,7 +61,7 @@ const obtenerRutaImagen = (pelicula) => {
   }
 
   if (pelicula.titulo === 'Depredador') {
-    return '/movies/pelicula3.jpg'
+    return '/movies/Pelicula2.jpeg'
   }
 
   // Respaldo dinámico por si agregas una tercera película en el futuro
