@@ -47,9 +47,9 @@ const login = async () => {
     const res = await api.post('/api/users/login', form.value)
     localStorage.setItem('token', res.data.token)
     localStorage.setItem('user', JSON.stringify(res.data.user))
-    router.push('/inicio')
+    router.push('/')
   } catch (err) {
-    error.value = err.response?.data?.error || 'Error al iniciar sesión'
+    error.value = err.response?.data?.message || 'Error al iniciar sesión'
   } finally {
     cargando.value = false
   }

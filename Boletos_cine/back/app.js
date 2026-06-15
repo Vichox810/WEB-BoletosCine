@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { sequelize } = require('./models');
+const { sequelize, User } = require('./models');
 const peliculaRoutes = require('./routes/pelicula');
 const funcionRoutes = require('./routes/funcion');
 const userRoutes = require('./routes/user'); 
@@ -34,10 +34,18 @@ const start = async () => {
     await sequelize.authenticate();
     console.log('Conexión a BD establecida correctamente.');
 
-    // Sincronizar modelos en producción (crea tablas si no existen)
     if (process.env.NODE_ENV === 'production') {
-      await sequelize.sync();
+      await sequelize.sync({ alter: true });
       console.log('Tablas sincronizadas correctamente.');
+
+      const count = await User.count();
+      if (count === 0) {
+        await User.bulkCreate([
+          { name: 'Admin', email: 'admin@test.com', password: '12345678', role: 'admin' },
+          { name: 'Usuario', email: 'user@test.com', password: '12345678', role: 'user' },
+        ], { individualHooks: true });
+        console.log('Usuarios de demo creados.');
+      }
     }
 
     app.listen(PORT, () => {
