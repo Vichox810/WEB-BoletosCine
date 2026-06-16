@@ -37,18 +37,43 @@
     </div>
 
     <!-- Estados de Carga y Vacío -->
-    <div v-if="cargandoLista">Cargando películas...</div>
+    <div v-if="cargandoLista" class="skeleton-lista">
+      <div v-for="n in 6" :key="n" class="skeleton-card">
+        <div class="skeleton-poster"></div>
+        <div class="skeleton-info">
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line"></div>
+        </div>
+      </div>
+    </div>
     <div v-else-if="peliculasFiltradas.length === 0" class="no-resultados">
-      No se encontraron películas con los filtros aplicados.
+      <div class="vacio-icono">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
+          <line x1="8" y1="2" x2="8" y2="22"></line>
+          <line x1="16" y1="2" x2="16" y2="22"></line>
+          <line x1="2" y1="8" x2="22" y2="8"></line>
+          <line x1="2" y1="16" x2="22" y2="16"></line>
+        </svg>
+      </div>
+      <p>No se encontraron peliculas con los filtros aplicados.</p>
     </div>
 
     <!-- Renderizado del Catálogo Filtrado -->
     <div v-else class="lista">
       <div v-for="pelicula in peliculasFiltradas" :key="pelicula.id" class="card">
+        <div class="poster-container">
+          <img v-if="pelicula.imagen" :src="`/movies/${pelicula.imagen}`" :alt="pelicula.titulo" />
+          <div v-else class="poster-placeholder" :style="{ background: placeholderGradient(pelicula.titulo) }">
+            <span class="placeholder-inicial">{{ pelicula.titulo.charAt(0).toUpperCase() }}</span>
+          </div>
+          <span class="badge-duracion">{{ pelicula.duracion }} min</span>
+          <div class="poster-overlay"></div>
+        </div>
         <div class="info">
           <h3>{{ pelicula.titulo }}</h3>
           <span class="badge-genero">{{ pelicula.genero }}</span>
-          <p class="meta-info">{{ pelicula.duracion }} min</p>
           <p v-if="pelicula.sinopsis" class="sinopsis">{{ pelicula.sinopsis }}</p>
         </div>
         <div class="acciones" v-if="isAdmin()">
@@ -83,6 +108,23 @@ const authHeader = { headers: { Authorization: `Bearer ${token}` } }
 const user = JSON.parse(localStorage.getItem('user') || '{}')
 
 const isAdmin = () => user.role === 'admin'
+
+const paletas = [
+  ['#ff4757', '#ff6b81'],
+  ['#2ed573', '#7bed9f'],
+  ['#1e90ff', '#70a1ff'],
+  ['#eccc68', '#ffd93d'],
+  ['#ff6348', '#ff7f50'],
+  ['#a29bfe', '#6c5ce7'],
+  ['#fd79a8', '#e84393'],
+  ['#00cec9', '#55efc4'],
+]
+
+const placeholderGradient = (titulo) => {
+  const index = titulo.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
+  const cols = paletas[index % paletas.length]
+  return `linear-gradient(135deg, ${cols[0]}, ${cols[1]})`
+}
 
 // Extrae dinámicamente los géneros existentes en la BD para armar el selector
 const listaGeneros = computed(() => {

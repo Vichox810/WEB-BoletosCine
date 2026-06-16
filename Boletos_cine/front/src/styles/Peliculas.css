@@ -129,13 +129,31 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  position: relative;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
-  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+  transition: left 0.5s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.card:hover::after {
+  left: 150%;
 }
 
 /* Contenedor de la Imagen / Póster */
@@ -144,27 +162,77 @@
   width: 100%;
   height: 380px;
   background-color: #0c0b11;
+  overflow: hidden;
 }
 
 .poster-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .poster-container img {
+  transform: scale(1.08);
+}
+
+.poster-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .poster-placeholder {
+  transform: scale(1.08);
+}
+
+.placeholder-inicial {
+  font-size: 5rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.3);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  user-select: none;
+}
+
+.poster-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  pointer-events: none;
 }
 
 /* Insignia Flotante de Duración */
 .badge-duracion {
   position: absolute;
-  bottom: 12px;
+  bottom: 16px;
   right: 12px;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
-  padding: 4px 10px;
-  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  padding: 5px 12px;
+  border-radius: 20px;
   font-size: 0.8rem;
-  font-weight: 600;
-  color: #ff6b81;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 700;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  letter-spacing: 0.3px;
+  z-index: 2;
+}
+
+.badge-duracion::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff6b81;
+  margin-right: 6px;
+  vertical-align: middle;
 }
 
 /* Detalles Informativos */
@@ -306,10 +374,91 @@
 
 .no-resultados {
   text-align: center;
-  padding: 40px;
+  padding: 60px 40px;
   color: #718096;
   font-size: 1.1rem;
   background: #15141f;
   border-radius: 12px;
-  border: 1px dashed rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
 }
+
+.vacio-icono {
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.vacio-icono svg {
+  width: 56px;
+  height: 56px;
+}
+
+.no-resultados p {
+  margin: 0;
+}
+
+/* Skeleton Loading */
+.skeleton-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+.skeleton-card {
+  background: #15141f;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.skeleton-poster {
+  width: 100%;
+  height: 380px;
+  background: linear-gradient(90deg, #15141f 25%, #1e1d2b 50%, #15141f 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-info {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-line {
+  height: 14px;
+  background: linear-gradient(90deg, #1e1d2b 25%, #2a2838 50%, #1e1d2b 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-line.medium {
+  width: 80%;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Fade-in animation for cards */
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lista .card {
+  animation: cardFadeIn 0.4s ease-out both;
+}
+
+.lista .card:nth-child(1) { animation-delay: 0s; }
+.lista .card:nth-child(2) { animation-delay: 0.08s; }
+.lista .card:nth-child(3) { animation-delay: 0.16s; }
+.lista .card:nth-child(4) { animation-delay: 0.24s; }
+.lista .card:nth-child(5) { animation-delay: 0.32s; }
+.lista .card:nth-child(6) { animation-delay: 0.40s; }
