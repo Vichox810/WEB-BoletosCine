@@ -54,7 +54,7 @@ router.post('/login', validateFields(['email', 'password']), async (req, res, ne
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: user.role === 'admin' ? '2h' : '1h' }
     );
 
     return res.json({
